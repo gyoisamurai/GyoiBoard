@@ -5,12 +5,20 @@ from django.views import generic
 from django.utils import timezone
 
 from celery.result import AsyncResult
-from gyoiboard.tasks import add
+from gyoiboard.tasks import add, executation
 from .models import Question, Choice
 
 
 def celery_test(request):
     task_id = add.delay(5, 5)
+    result = AsyncResult(task_id)
+    print('result:', result, ' : ', result.state, ' : ', result.ready())
+    context = {'result': result}
+    return render(request, 'polls/celery_test.html', context)
+
+
+def celery_test2(request):
+    task_id = executation.delay('python3 /home/itakaesu/PycharmProjects/GyoiThon/gyoithon.py -h')
     result = AsyncResult(task_id)
     print('result:', result, ' : ', result.state, ' : ', result.ready())
     context = {'result': result}
