@@ -4,7 +4,17 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 
+from celery.result import AsyncResult
+from gyoiboard.tasks import add
 from .models import Question, Choice
+
+
+def celery_test(request):
+    task_id = add.delay(5, 5)
+    result = AsyncResult(task_id)
+    print('result:', result, ' : ', result.state, ' : ', result.ready())
+    context = {'result': result}
+    return render(request, 'polls/celery_test.html', context)
 
 
 class IndexView(generic.ListView):
