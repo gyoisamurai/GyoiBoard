@@ -1,2 +1,2 @@
 # GyoiBoard
-Web interface for GyoiTHon, ATD.
+Web interface for GyoiThon, ATD.
