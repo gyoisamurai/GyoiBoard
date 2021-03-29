@@ -1,0 +1,40 @@
+{% extends "atd/base.html" %}
+
+{% block title %}Target list{% endblock title %}
+
+{% block content %}
+    <h4 class="mt-4 border-bottom">Target list</h4>
+    <a href="{% url 'atd:target_upload' %}" class="btn btn-primary btn-sm my-3">Upload</a>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Target name</th>
+          <th scope="col">Overview</th>
+          <th scope="col">Rank</th>
+          <th scope="col">Last scan date</th>
+          <th scope="col">Status</th>
+          <th scope="col">Operation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for target in targets %}
+        <tr>
+          <th scope="row">{{ target.id }}</th>
+          <td>{{ target.name }}</td>
+          <td>{{ target.overview }}</td>
+          <td>{{ target.rank }}</td>
+          <td>{{ target.last_scan_date }}</td>
+          <td>{{ target.status }}</td>
+          <td>
+            <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+            <a href="{% url 'atd:scan_target' target_id=target.id %}" class="btn btn-outline-success btn-sm">Scan</a>
+            <a href="{% url 'atd:scan_result_list' target_id=target.id %}" class="btn btn-outline-info btn-sm">Scan results</a>
+            <a href="{% url 'atd:fix_target' target_id=target.id %}" class="btn btn-outline-primary btn-sm">Fix</a>
+            <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock content %}

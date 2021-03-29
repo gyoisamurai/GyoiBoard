@@ -1,0 +1,19 @@
+{% extends "atd/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Scan Setting{% endblock title %}
+
+{% block content %}
+<h4 class="mt-4 mb-5 border-bottom">Scan Setting : {{ attack_method }}</h4>
+<form action="{% url 'atd:scan_exec' target_id=target_id %}" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+    <div class="form-group row">
+        <div class="offset-md-3 col-md-9">
+            <button type="submit" class="btn btn-primary">Scan</button>
+        </div>
+    </div>
+</form>
+
+<a href="{% url 'atd:scan_target' target_id=target_id %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}

@@ -1,0 +1,22 @@
+{% extends "atd/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Scan Result Edit{% endblock title %}
+
+{% block content %}
+    <h4 class="mt-4 mb-5 border-bottom">Scan Result Edit</h4>
+    {% if scan_result_id %}
+    <form action="{% url 'atd:scan_result_mod' target_id=target_id scan_result_id=scan_result_id %}" method="post">
+    {% else %}
+    <form action="{% url 'atd:scan_result_add' target_id=target_id %}" method="post">
+    {% endif %}
+      {% csrf_token %}
+      {% bootstrap_form form layout='horizontal' %}
+      <div class="form-group row">
+        <div class="offset-md-3 col-md-9">
+          <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </form>
+    <a href="{% url 'atd:scan_result_list' target_id=target_id %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}

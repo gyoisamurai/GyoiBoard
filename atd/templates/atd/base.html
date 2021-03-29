@@ -1,0 +1,21 @@
+{% load i18n static %}
+<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:'en-us' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="{% static 'atd/css/bootstrap.min.css' %}">
+{% block extra_css %}{% endblock %}
+<title>{% block title %}My Targets{% endblock %}</title>
+</head>
+<body>
+  <div class="container">
+    {% block content %}
+      {{ content }}
+    {% endblock %}
+  </div>
+<script src="{% static 'atd/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'atd/js/bootstrap.bundle.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

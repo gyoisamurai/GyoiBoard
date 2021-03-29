@@ -1,0 +1,75 @@
+{% extends "atd/base.html" %}
+
+{% block title %}Scan Selection{% endblock title %}
+
+{% block content %}
+<h4 class="mt-4 mb-5 border-bottom">Scan Selection</h4>
+
+<style>
+    input[type="radio"]{
+        display: none;
+    }
+
+    label {
+        display: inline-block;
+        border-radius: 20px;
+        text-align: center;
+        text-decoration: none;
+        border: solid 1px #ccc;
+        transition: 0.25s;
+        padding: 6px 18px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 3px;
+    }
+
+    input[type="radio"]:checked + label {
+        background: #00809d;
+        color: #fff;
+    }
+</style>
+
+<!-- Form -->
+<form action="{% url 'atd:scan_setting' target_id=target_id %}" method="post">
+    {% csrf_token %}
+    <div class="col-md-3">
+        <!-- Data Poisoning-->
+        <input type="radio" name="tags" value="data_poisoning_fc" id="id_data_poisoning_0">
+        <label for="id_data_poisoning_0">Feature Collision Attack</label>
+        <input type="radio" name="tags" value="data_poisoning_cp" id="id_data_poisoning_1">
+        <label for="id_data_poisoning_1">Convex Polytope Attack</label>
+        <input type="radio" name="tags" value="data_poisoning_bp" id="id_data_poisoning_2">
+        <label for="id_data_poisoning_2">Bullseye Polytope Attack</label>
+
+        <!-- Model Poisoning -->
+        <input type="radio" name="tags" value="model_poisoning_ni" id="id_model_poisoning_0">
+        <label for="id_model_poisoning_0">Node Injection Attack</label>
+        <input type="radio" name="tags" value="model_poisoning_mli" id="id_model_poisoning_1">
+        <label for="id_model_poisoning_1">Malicious Layer Injection Attack</label>
+
+        <!-- Evasion -->
+        <input type="radio" name="tags" value="evasion_fgsm" id="id_evasion_0">
+        <label for="id_evasion_0">Fast Gradient Sined Method</label>
+        <input type="radio" name="tags" value="evasion_cw" id="id_evasion_1">
+        <label for="id_evasion_1">Carlini and Wagner Attack</label>
+        <input type="radio" name="tags" value="evasion_jsma" id="id_evasion_2">
+        <label for="id_evasion_2">Jacobian-based Saliency Map Attack</label>
+
+        <!-- Exfiltration -->
+        <input type="radio" name="tags" value="exfiltration_mi" id="id_exfiltration_0">
+        <label for="id_exfiltration_0">Membership Inference Attack</label>
+        <input type="radio" name="tags" value="exfiltration_lomi" id="id_exfiltration_1">
+        <label for="id_exfiltration_1">Label Only Membership Inference Attack</label>
+        <input type="radio" name="tags" value="exfiltration_minv" id="id_exfiltration_2">
+        <label for="id_exfiltration_2">Model Inversion Attack</label>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Next</button>
+    </div>
+</form>
+
+<!-- Back to Target's list -->
+<hr>
+<a href="{% url 'atd:target_list' %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}
