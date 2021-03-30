@@ -1,11 +1,15 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.list import ListView
 from django_celery_results.models import TaskResult
+from django.conf import settings
 from celery.result import AsyncResult
 
 from gyoiboard.tasks import executation
-from atd.models import Target, ScanResult
-from atd.forms import UploadFileForm, TargetForm, ScanResultForm, FGSMSettingForm
+from atd.models import Target, ScanResult, ExtScanResult
+from atd.forms import UploadFileForm, TargetForm, FGSMSettingForm
+from atd.util import Utilty
 
 
 # Upload files.
@@ -65,11 +69,13 @@ def scan_target(request, target_id):
 
 # Scan Setting.
 def scan_setting(request, target_id):
+    utility = Utilty()
+
     if target_id:
         # Select Attack Method's form.
         attack_method = ''
         if request.POST['tags'] == 'evasion_fgsm':
-            attack_method = 'Fast Gradient Signed Method'
+            attack_method = utility.transform_attack_method_name(request.POST['tags'])
             setting_form = FGSMSettingForm()
         else:
             # TODO: 他の攻撃手法のフォームを用意すること。
@@ -80,28 +86,65 @@ def scan_setting(request, target_id):
 
     return render(request, 'atd/scan_setting.html', dict(form=setting_form,
                                                          target_id=target_id,
+                                                         attack_id=request.POST['tags'],
                                                          attack_method=attack_method))
+
+
+# Build ATD's command.
+def build_atd_command(scan_id, params, target):
+    model_path = '/home/itakaesu/PycharmProjects/GyoiBoard' + target.target_path
+    common = '--scan_id {} --op_type attack --model_name {}'.format(scan_id, model_path)
+    common_test_data = '--test_data_name X_test.npz --test_label_name y_test.npz --use_x_test_num 100'
+    if params['attack_id'] == 'evasion_fgsm':
+        specify_option = '--attack_type evasion --attack_evasion fgsm --fgsm_epsilon {}'.format(params['eps'])
+    else:
+        # TODO: 他のオプションを組み立てる。
+        specify_option = '--attack_type evasion --attack_evasion fgsm --fgsm_epsilon {}'.format(params['eps'])
+    return common + ' ' + common_test_data + ' ' + specify_option
 
 
 # Scan Execution.
 def scan_exec(request, target_id):
+    utility = Utilty()
+
     if target_id:
         target = get_object_or_404(Target, pk=target_id)
     else:
         return redirect('atd:target_list')
 
     # Execution.
-    task = executation.delay('python3 /home/itakaesu/PycharmProjects/Adversarial-Threat-Detector/atd.py -h')
-    print(task.id)
-    task_1 = AsyncResult(task.id)
-    print(task_1.status)
+    scan_id = utility.get_random_token(36)
+    command_option = build_atd_command(scan_id, request.POST, target)
+    command = 'python3 {}atd.py {}'.format(settings.ATD_DIR, command_option)
+    task = executation.delay('{}'.format(command))
+    print(scan_id, command)
 
-    result = list(TaskResult.objects.filter(task_id=task.id).values_list('result', flat=True))
-    if len(result) == 0:
-        result[0] = 'Could not execute.'
-    context = {'result': result[0].encode('utf-8')}
+    # Update to ScanResult.
+    scan_result = ScanResult()
+    scan_result.scan_result = target
+    scan_result.scan_id = scan_id
+    scan_result.attack_method = utility.transform_attack_method_name(request.POST['attack_id'])
+    scan_result.save()
 
-    return render(request, 'atd/scan_exec.html', dict(context))
+    return redirect('atd:target_list')
+
+
+# Scan result's list.
+def scan_result_list(request, target_id):
+    if target_id:
+        target = get_object_or_404(Target, pk=target_id)
+        scan_results = ScanResult.objects.filter(scan_result__exact=target_id)
+    else:
+        return redirect('atd:target_list')
+
+    scan_details = []
+    for scan_result in scan_results:
+        scan_detail = ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
+        if len(scan_detail) != 0:
+            scan_details.append(scan_detail[0])
+
+    return render(request, 'atd/scan_result_list.html', dict(target=target,
+                                                             scan_details=scan_details))
 
 
 # Execute fix.
@@ -114,48 +157,3 @@ def target_del(request, target_id):
     target = get_object_or_404(Target, pk=target_id)
     target.delete()
     return redirect('atd:target_list')
-
-
-# Edit scan result.
-def scan_result_edit(request, target_id, scan_result_id=None):
-    target = get_object_or_404(Target, pk=target_id)
-    if scan_result_id:
-        scan_result = get_object_or_404(ScanResult, pk=scan_result_id)
-    else:
-        scan_result = ScanResult()
-
-    if request.method == 'POST':
-        form = ScanResultForm(request.POST, instance=scan_result)
-        if form.is_valid():
-            scan_result = form.save(commit=False)
-            scan_result.target = target
-            scan_result.save()
-            return redirect('atd:scan_result_list', target_id=target_id)
-    else:
-        form = ScanResultForm(instance=scan_result)
-
-    return render(request,
-                  'atd/scan_result_edit.html',
-                  dict(form=form, target_id=target_id, scan_result_id=scan_result_id))
-
-
-# Delete scan result.
-def scan_result_del(request, target_id, scan_result_id):
-    scan_result = get_object_or_404(ScanResult, pk=scan_result_id)
-    scan_result.delete()
-    return redirect('atd:scan_result_list', target_id=target_id)
-
-
-class ScanResultList(ListView):
-    # Scan's results.
-    context_object_name = 'scan_result'
-    template_name = 'atd/scan_result_list.html'
-    paginate_by = 2
-
-    def get(self, request, *args, **kwargs):
-        target = get_object_or_404(Target, pk=kwargs['target_id'])
-        scan_results = target.impressions.all().order_by('id')
-        self.object_list = scan_results
-
-        context = self.get_context_data(object_list=self.object_list, target=target)
-        return self.render_to_response(context)

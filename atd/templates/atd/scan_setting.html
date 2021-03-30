@@ -4,10 +4,11 @@
 {% block title %}Scan Setting{% endblock title %}
 
 {% block content %}
-<h4 class="mt-4 mb-5 border-bottom">Scan Setting : {{ attack_method }}</h4>
+<h4 class="mt-4 mb-5 border-bottom">Scan Setting >> {{ attack_method }}</h4>
 <form action="{% url 'atd:scan_exec' target_id=target_id %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='horizontal' %}
+    <input type="hidden" name="attack_id" value="{{ attack_id }}">
     <div class="form-group row">
         <div class="offset-md-3 col-md-9">
             <button type="submit" class="btn btn-primary">Scan</button>

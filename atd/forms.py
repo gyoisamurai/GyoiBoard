@@ -1,6 +1,6 @@
 import os
 from django import forms
-from atd.models import FileUpload, Target, ScanResult, ScanSettingFGSM
+from atd.models import FileUpload, Target, ScanSettingFGSM
 
 
 class UploadFileForm(forms.ModelForm):
@@ -22,19 +22,7 @@ class TargetForm(forms.ModelForm):
         fields = ('name', 'overview', 'rank', 'last_scan_date', 'status', 'target_path')
 
 
-class TargetScanForm(forms.ModelForm):
-    class Meta:
-        model = ScanResult
-        fields = ('result',)
-
-
 class FGSMSettingForm(forms.ModelForm):
     class Meta:
         model = ScanSettingFGSM
         fields = ('eps', 'eps_step', 'targeted', 'batch_size',)
-
-
-class ScanResultForm(forms.ModelForm):
-    class Meta:
-        model = ScanResult
-        fields = ('result',)

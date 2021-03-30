@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 
 
+# Model (Target) Upload.
 class FileUpload(models.Model):
     # Upload file.
     file = models.FileField(verbose_name='Upload File',
@@ -11,6 +12,7 @@ class FileUpload(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
+# Model (Target).
 class Target(models.Model):
     # Target.
     name = models.CharField(verbose_name='Target name', max_length=255, blank=False)
@@ -24,6 +26,7 @@ class Target(models.Model):
         return self.name
 
 
+# Scan Setting.
 class ScanSettingFGSM(models.Model):
     # Setting of FGSM.
     eps = models.IntegerField(verbose_name='Epsilon', default=0.05)
@@ -32,20 +35,36 @@ class ScanSettingFGSM(models.Model):
     batch_size = models.IntegerField(verbose_name='Batch Size', default=32)
 
 
-class ScanTarget2(models.Model):
-    # Scan Target.
-    target_name = models.CharField(verbose_name='Target name', max_length=255)
-    target_path = models.CharField(verbose_name='Target Path', max_length=255)
-    overview = models.CharField(verbose_name='Overview', max_length=255, default='N/A')
-    rank = models.CharField(verbose_name='Rank', max_length=10, default='N/A')
-    last_scan_date = models.CharField(verbose_name='Last scan date', max_length=255, default='N/A')
-    status = models.CharField(verbose_name='Status', max_length=255, default='N/A')
-
-    def __str__(self):
-        return self.name
-
-
+# Scan Result.
 class ScanResult(models.Model):
     # Scan results.
-    result = models.ForeignKey(Target, verbose_name='スキャン結果', related_name='scan_result', on_delete=models.CASCADE)
-    scan_result = models.TextField('スキャン結果', blank=True)
+    scan_result = models.ForeignKey(Target, on_delete=models.CASCADE)
+    scan_id = models.CharField(max_length=36, default='')
+    attack_method = models.CharField(max_length=255, default='')
+
+
+# ATD Scan Result (external).
+class ExtScanResult(models.Model):
+    class Meta:
+        db_table = 'ScanResultTBL'
+
+    scan_id = models.CharField(max_length=36)
+    status = models.CharField(max_length=255)
+    rank = models.CharField(max_length=255)
+    target_path = models.CharField(max_length=255)
+    x_train_path = models.CharField(max_length=255)
+    x_train_num = models.IntegerField()
+    y_train_path = models.CharField(max_length=255)
+    x_test_path = models.CharField(max_length=255)
+    x_test_num = models.IntegerField()
+    y_test_path = models.CharField(max_length=255)
+    operation_type = models.CharField(max_length=255)
+    attack_type = models.CharField(max_length=255)
+    attack_method = models.CharField(max_length=255)
+    defence_type = models.CharField(max_length=255)
+    defence_method = models.CharField(max_length=255)
+    exec_start_date = models.CharField(max_length=255)
+    exec_end_date = models.CharField(max_length=255)
+    report_html_path = models.CharField(max_length=255)
+    report_ipynb_path = models.CharField(max_length=255)
+    lang = models.CharField(max_length=255)
