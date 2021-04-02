@@ -160,11 +160,16 @@ def show_report(request):
     else:
         scan_result = scan_result[0]
 
-    report_dir = os.path.join(settings.BASE_DIR, 'atd', 'reports', scan_result.report_path.split(os.sep)[-1])
+    copy_report_to = os.path.join(settings.BASE_DIR, 'atd', 'static', 'atd', 'img', 'report')
+    copy_media_to = os.path.join(settings.BASE_DIR, 'media', 'atd', 'report')
+    report_dir = os.path.join(copy_report_to, scan_result.report_path.split(os.sep)[-1])
+    download_dir = os.path.join(copy_media_to, scan_result.report_path.split(os.sep)[-1])
     if os.path.exists(report_dir) is False:
         shutil.copytree(scan_result.report_path, report_dir)
+    if os.path.exists(download_dir) is False:
+        shutil.copytree(scan_result.report_path, download_dir)
 
-    target = {'dataset_img': {}}
+    target = {}
     data_poisoning = {}
     model_poisoning = {}
     evasion = {}
@@ -175,7 +180,7 @@ def show_report(request):
     target['dataset_path'] = scan_result.x_test_path
     target['dataset_num'] = scan_result.x_test_num
     target['accuracy'] = scan_result.accuracy
-    target['dataset_img']['img1'] = os.path.join(report_dir, 'img', 'adv_benign_1.jpg')
+    target['dataset_img'] = scan_result.report_path.split(os.sep)[-1]
     if params['attack_type'] == 'evasion':
         evasion['exist'] = True
         evasion_result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])

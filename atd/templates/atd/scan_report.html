@@ -338,11 +338,11 @@
                     <h3 class="h3_icon">Dataset samples</h3>
                     <p>Samples of Dataset.</p>
                     <ul class="clearfix benign_list">
-                        <li><img src="{{ target.dataset_img.img1 }}" alt="Benign sample #1."></li>
-                        <li><img src="{{ target.dataset_img.img2 }}" alt="Benign sample #2."></li>
-                        <li><img src="{{ target.dataset_img.img3 }}" alt="Benign sample #3."></li>
-                        <li><img src="{{ target.dataset_img.img4 }}" alt="Benign sample #4."></li>
-                        <li><img src="{{ target.dataset_img.img5 }}" alt="Benign sample #5."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_1.jpg" alt="Benign sample #1."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_2.jpg" alt="Benign sample #2."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_3.jpg" alt="Benign sample #3."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_4.jpg" alt="Benign sample #4."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_5.jpg" alt="Benign sample #5."></li>
                     </ul>
                 </section>
 
@@ -487,16 +487,16 @@
                         <ul>
                             <li>Scan Date : {{ evasion.fgsm.date }}</li>
                             <li>Consequence : {{ evasion.fgsm.consequence }}</li>
-                            <li>Replay's ipynb : {{ evasion.fgsm.ipynb_path }}</li>
+                            <li>Replay's ipynb : {{ evasion.fgsm.ipynb }}</li>
                             <li>Countermeasure : {{ evasion.fgsm.countermeasure }}</li>
                         </ul>
                         <p>Adversarial Examples</p>
                         <ul class="clearfix aes_list">
-                            <li><img src="{{ evasion.fgsm.img1 }}" alt="Adversarial Exmaples #1."></li>
-                            <li><img src="{{ evasion.fgsm.img2 }}" alt="Adversarial Exmaples #2."></li>
-                            <li><img src="{{ evasion.fgsm.img3 }}" alt="Adversarial Exmaples #3."></li>
-                            <li><img src="{{ evasion.fgsm.img4 }}" alt="Adversarial Exmaples #4."></li>
-                            <li><img src="{{ evasion.fgsm.img5 }}" alt="Adversarial Exmaples #5."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_5.jpg" alt="Adversarial Exmaples #5."></li>
                         </ul>
                         <ul>
                             <li>AEs Path : {{ evasion.fgsm.aes_path }}</li>
@@ -514,11 +514,11 @@
                         </ul>
                         <p>Adversarial Examples</p>
                         <ul class="clearfix aes_list">
-                            <li><img src="{{ evasion.cnw.ae_img.img1 }}" alt="Adversarial Exmaples #1."></li>
-                            <li><img src="{{ evasion.cnw.ae_img.img2 }}" alt="Adversarial Exmaples #2."></li>
-                            <li><img src="{{ evasion.cnw.ae_img.img3 }}" alt="Adversarial Exmaples #3."></li>
-                            <li><img src="{{ evasion.cnw.ae_img.img4 }}" alt="Adversarial Exmaples #4."></li>
-                            <li><img src="{{ evasion.cnw.ae_img.img5 }}" alt="Adversarial Exmaples #5."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_5.jpg" alt="Adversarial Exmaples #5."></li>
                         </ul>
                         <ul>
                             <li>AEs Path : {{ evasion.cnw.aes_path }}</li>
@@ -536,11 +536,11 @@
                         </ul>
                         <p>Adversarial Examples</p>
                         <ul class="clearfix aes_list">
-                            <li><img src="{{ evasion.jsma.ae_img.img1 }}" alt="Adversarial Exmaples #1."></li>
-                            <li><img src="{{ evasion.jsma.ae_img.img2 }}" alt="Adversarial Exmaples #2."></li>
-                            <li><img src="{{ evasion.jsma.ae_img.img3 }}" alt="Adversarial Exmaples #3."></li>
-                            <li><img src="{{ evasion.jsma.ae_img.img4 }}" alt="Adversarial Exmaples #4."></li>
-                            <li><img src="{{ evasion.jsma.ae_img.img5 }}" alt="Adversarial Exmaples #5."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_5.jpg" alt="Adversarial Exmaples #5."></li>
                         </ul>
                         <ul>
                             <li>AEs Path : {{ evasion.jsma.aes_path }}</li>
