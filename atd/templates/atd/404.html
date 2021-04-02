@@ -1,0 +1,8 @@
+{% extends "atd/base.html" %}
+
+{% block title %}Page Not Found{% endblock title %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">Page Not Found</h4>
+<a href="{% url 'atd:target_list' %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}

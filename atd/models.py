@@ -51,7 +51,9 @@ class ExtScanResult(models.Model):
     scan_id = models.CharField(max_length=36)
     status = models.CharField(max_length=255)
     rank = models.CharField(max_length=255)
+    summary = models.CharField(max_length=1000)
     target_path = models.CharField(max_length=255)
+    accuracy = models.FloatField()
     x_train_path = models.CharField(max_length=255)
     x_train_num = models.IntegerField()
     y_train_path = models.CharField(max_length=255)
@@ -65,6 +67,32 @@ class ExtScanResult(models.Model):
     defence_method = models.CharField(max_length=255)
     exec_start_date = models.CharField(max_length=255)
     exec_end_date = models.CharField(max_length=255)
-    report_html_path = models.CharField(max_length=255)
-    report_ipynb_path = models.CharField(max_length=255)
+    report_path = models.CharField(max_length=255)
+    report_html = models.CharField(max_length=255)
+    report_ipynb = models.CharField(max_length=255)
     lang = models.CharField(max_length=255)
+
+
+# ATD Scan Result of Evasion (external).
+class ExtScanResultEvasion(models.Model):
+    class Meta:
+        db_table = 'ScanResultEvasionTBL'
+
+    scan_id = models.CharField(max_length=36)
+    consequence = models.CharField(max_length=255)
+    summary = models.CharField(max_length=1000)
+    attack_method = models.CharField(max_length=255)
+    accuracy = models.FloatField()
+
+
+# ATD FGSM's setting (external).
+class ExtEvasionFGSM(models.Model):
+    class Meta:
+        db_table = 'EvasionFGSMTBL'
+
+    scan_id = models.CharField(max_length=36)
+    epsilon = models.FloatField()
+    epsilon_step = models.FloatField()
+    targeted = models.IntegerField()
+    batch_size = models.IntegerField()
+    countermeasure = models.CharField(max_length=3000)

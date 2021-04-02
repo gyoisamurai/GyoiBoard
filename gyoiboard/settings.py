@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'django_celery_results',
+    'django_extensions',
     'bootstrap4',
 ]
 
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'gyoiboard.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates', os.path.join(BASE_DIR, 'atd', 'reports')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
