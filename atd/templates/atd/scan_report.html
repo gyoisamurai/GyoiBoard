@@ -329,7 +329,7 @@
                         </tr>
                         <tr>
                             <th>Inference accuracy</th>
-                            <td>{{ target.accuracy }}</td>
+                            <td>{{ target.accuracy }}%</td>
                         </tr>
                     </table>
                 </section>
@@ -338,11 +338,11 @@
                     <h3 class="h3_icon">Dataset samples</h3>
                     <p>Samples of Dataset.</p>
                     <ul class="clearfix benign_list">
-                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_1.jpg" alt="Benign sample #1."></li>
-                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_2.jpg" alt="Benign sample #2."></li>
-                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_3.jpg" alt="Benign sample #3."></li>
-                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_4.jpg" alt="Benign sample #4."></li>
-                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/adv_benign_5.jpg" alt="Benign sample #5."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_1.jpg" alt="Benign sample #1."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_2.jpg" alt="Benign sample #2."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_3.jpg" alt="Benign sample #3."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_4.jpg" alt="Benign sample #4."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_5.jpg" alt="Benign sample #5."></li>
                     </ul>
                 </section>
 
@@ -487,6 +487,7 @@
                         <ul>
                             <li>Scan Date : {{ evasion.fgsm.date }}</li>
                             <li>Consequence : {{ evasion.fgsm.consequence }}</li>
+                            <li>Accuracy on AE : {{ evasion.fgsm.accuracy }}%</li>
                             <li>Replay's ipynb : {{ evasion.fgsm.ipynb }}</li>
                             <li>Countermeasure : {{ evasion.fgsm.countermeasure }}</li>
                         </ul>

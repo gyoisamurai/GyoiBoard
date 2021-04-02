@@ -29,8 +29,8 @@ class Target(models.Model):
 # Scan Setting.
 class ScanSettingFGSM(models.Model):
     # Setting of FGSM.
-    eps = models.IntegerField(verbose_name='Epsilon', default=0.05)
-    eps_step = models.IntegerField(verbose_name='Epsilon Step', default=0.1)
+    eps = models.FloatField(verbose_name='Epsilon', default=0.05)
+    eps_step = models.FloatField(verbose_name='Epsilon Step', default=0.1)
     targeted = models.BooleanField(verbose_name='Targeted', default=False)
     batch_size = models.IntegerField(verbose_name='Batch Size', default=32)
 

@@ -198,9 +198,9 @@ def show_report(request):
             fgsm_result = fgsm_result[0]
             evasion['fgsm']['date'] = scan_result.exec_end_date
             evasion['fgsm']['consequence'] = evasion_result.consequence
+            evasion['fgsm']['accuracy'] = evasion_result.accuracy
             evasion['fgsm']['ipynb'] = os.path.join(report_dir, 'evasion_fgsm.ipynb')
             evasion['fgsm']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
-            evasion['fgsm']['img1'] = os.path.join(report_dir, 'img', 'adv_fgsm_1.jpg')
             evasion['fgsm']['aes_path'] = os.path.join(report_dir, 'adv_fgsm.npz')
         else:
             # TODO: 他の攻撃手法（CnW, JSMA）を追加すること。

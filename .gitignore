@@ -128,7 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Upload files
-.media/*
-
-./atd/static/atd/img/report/*
+# Upload files, so on
+media/*
+/atd/static/atd/img/report/*
