@@ -1,0 +1,333 @@
+{% extends "atd/base.html" %}
+
+{% block title %}Scan Result List{% endblock title %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">Scan Detail >> {{ target.id }}.{{ target.name }}</h4>
+
+<style>
+  #about .table_target_info th {
+    width: 940px;
+    background-color: #f0f0f0;
+    padding: 12px 0;
+    border: 1px solid #cccccc;
+  }
+
+  #about .table_target_info td {
+    width: 940px;
+    border: 1px solid #cccccc;
+    text-align: left;
+    padding: 0 0 0 10px;
+  }
+
+  #about .table_target_info tr th:nth-child(1) {
+    width: 200px;
+    text-align: center;
+    vertical-align: center;
+  }
+</style>
+
+<table class="table_target_info">
+  <tr>
+    <th>Model path</th>
+    <td>{{ target.target_path }}</td>
+  </tr>
+  <tr>
+    <th>Author</th>
+    <td>{{ target.author }}</td>
+  </tr>
+</table>
+
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>No</th>
+    <th>Attack Type</th>
+    <th>Method</th>
+    <th>Rank</th>
+    <th>Accuracy (%)</th>
+    <th>Scan Date</th>
+    <th>Status</th>
+    <th>Scan</th>
+    <th>Report</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <!-- Data Poisoning : Feature Collision Attack -->
+  <tr>
+    <td>1</td>
+    <td>Data Poisoning</td>
+    <td>Feature Collision Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="data_poisoning_fc">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Data Poisoning : Convex Polytope Attack -->
+  <tr>
+    <td>2</td>
+    <td>Data Poisoning</td>
+    <td>Convex Polytope Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="data_poisoning_cp">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Data Poisoning : Bullseye Polytope Attack -->
+  <tr>
+    <td>3</td>
+    <td>Data Poisoning</td>
+    <td>Bullseye Polytope Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="data_poisoning_bp">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Model Poisoning : Node Injection Attack -->
+  <tr>
+    <td>4</td>
+    <td>Model Poisoning</td>
+    <td>Node Injection Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="model_poisoning_ni">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Model Poisoning : Malicious Layer Injection Attack -->
+  <tr>
+    <td>5</td>
+    <td>Model Poisoning</td>
+    <td>Malicious Layer Injection Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="model_poisoning_mli">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Evasion : Fast Gradient Signed Method -->
+  <tr>
+    <td>6</td>
+    <td>Evasion</td>
+    <td>Fast Gradient Signed Method</td>
+    <td>{{ evasion.fgsm.rank }}</td>
+    <td>{{ evasion.fgsm.accuracy }}</td>
+    <td>{{ evasion.fgsm.exec_end_date }}</td>
+    <td>{{ evasion.fgsm.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="evasion_fgsm">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      {% if evasion.fgsm.scan_id %}
+      <form action="{% url 'atd:report' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="scan_id" value="{{ evasion.fgsm.scan_id }}">
+        <input type="hidden" name="attack_type" value="{{ evasion.fgsm.attack_type }}">
+        <input type="hidden" name="attack_method" value="{{ evasion.fgsm.attack_method }}">
+        <input type="hidden" name="operation" value="show">
+        <button type="submit" class="btn btn-success">Show</button>
+      {% else %}
+      <form action="{% url 'atd:target_list' %}" method="get">
+      {% endif %}
+      </form>
+    </td>
+    <td>
+      {% if evasion.fgsm.scan_id %}
+      <form action="{% url 'atd:report' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="scan_id" value="{{ evasion.fgsm.scan_id }}">
+        <input type="hidden" name="operation" value="download">
+        <button type="submit" class="btn btn-warning">Download</button>
+      {% else %}
+      <form action="{% url 'atd:target_list' %}" method="get">
+      {% endif %}
+      </form>
+    </td>
+  </tr>
+  <!-- Evasion : Carlini and Wagner Attack -->
+  <tr>
+    <td>7</td>
+    <td>Evasion</td>
+    <td>Carlini and Wagner Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="evasion_cw">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Evasion : Jacobian-based Saliency Map Attack -->
+  <tr>
+    <td>8</td>
+    <td>Evasion</td>
+    <td>Jacobian-based Saliency Map Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="evasion_jsma">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Exfiltration : Membership Inference Attack -->
+  <tr>
+    <td>9</td>
+    <td>Exfiltration</td>
+    <td>Membership Inference Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="exfiltration_mi">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Exfiltration : Label Only Membership Inference Attack -->
+  <tr>
+    <td>10</td>
+    <td>Exfiltration</td>
+    <td>Label Only Membership Inference Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="exfiltration_lomi">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  <!-- Exfiltration : Model Inversion Attack -->
+  <tr>
+    <td>11</td>
+    <td>Exfiltration</td>
+    <td>Model Inversion Attack</td>
+    <td>{{ scan_detail.rank }}</td>
+    <td>{{ scan_detail.accuracy }}</td>
+    <td>{{ scan_detail.exec_end_date }}</td>
+    <td>{{ scan_detail.status }}</td>
+    <td>
+      <form action="{% url 'atd:scan_setting' target_id=target.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="exfiltration_minv">
+        <button type="submit" class="btn btn-primary">Scan</button>
+      </form>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-success">Show</button>
+    </td>
+    <td>
+      <button type="submit" class="btn btn-warning">Download</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<a href="{% url 'atd:target_list' %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}

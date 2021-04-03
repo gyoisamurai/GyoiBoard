@@ -1,11 +1,10 @@
 import os
 import shutil
+from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic.list import ListView
-from django_celery_results.models import TaskResult
+from django.http import FileResponse
 from django.conf import settings
-from celery.result import AsyncResult
 
 from gyoiboard.tasks import executation
 from atd.models import Target, ScanResult, ExtScanResult, ExtScanResultEvasion, ExtEvasionFGSM
@@ -25,6 +24,8 @@ def modelform_upload(request):
             # Update Target model.
             target.name = request.FILES['file']
             target.overview = request.POST['overview']
+            target.author = request.POST['author']
+            target.registration_date = saved_file.uploaded_at.strftime('%Y-%m-%d %H:%M:%S')
             target.target_path = saved_file.file.url
             target.save()
             return redirect('atd:target_list')
@@ -75,8 +76,8 @@ def scan_setting(request, target_id):
     if target_id:
         # Select Attack Method's form.
         attack_method = ''
-        if request.POST['tags'] == 'evasion_fgsm':
-            attack_method = utility.transform_attack_method_name(request.POST['tags'])
+        if request.POST['method'] == 'evasion_fgsm':
+            attack_method = utility.transform_attack_method_name(request.POST['method'])
             setting_form = FGSMSettingForm()
         else:
             # TODO: 他の攻撃手法のフォームを用意すること。
@@ -87,7 +88,7 @@ def scan_setting(request, target_id):
 
     return render(request, 'atd/scan_setting.html', dict(form=setting_form,
                                                          target_id=target_id,
-                                                         attack_id=request.POST['tags'],
+                                                         attack_id=request.POST['method'],
                                                          attack_method=attack_method))
 
 
@@ -130,8 +131,8 @@ def scan_exec(request, target_id):
     return redirect('atd:target_list')
 
 
-# Scan result's list.
-def scan_result(request, target_id):
+# Scanning dashboard.
+def scan_detail(request, target_id):
     if target_id:
         target = get_object_or_404(Target, pk=target_id)
         scan_results = ScanResult.objects.filter(scan_result__exact=target_id)
@@ -139,17 +140,56 @@ def scan_result(request, target_id):
         return redirect('atd:target_list')
 
     scan_details = []
+    data_poisoning = {'fc': {}, 'cp': {}, 'bp': {}}
+    model_poisoning = {'ni': {}, 'mli': {}}
+    evasion = {'fgsm': {}, 'cnw': {}, 'jsma': {}}
+    exfiltration = {'mi': {}, 'lomi': {}, 'minv': {}}
     for scan_result in scan_results:
         scan_detail = ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
         if len(scan_detail) != 0:
-            scan_details.append(scan_detail[0])
+            if scan_detail[0].attack_type == 'data_poisoning':
+                if scan_detail[0].attack_method == 'feature_collision':
+                    data_poisoning['fc'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'convex_polytope':
+                    data_poisoning['cp'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'bullseye_polytope':
+                    data_poisoning['bp'] = scan_detail[0]
+            elif scan_detail[0].attack_type == 'model_poisoning':
+                if scan_detail[0].attack_method == 'node_injection':
+                    model_poisoning['ni'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'malicious_layer_injection':
+                    model_poisoning['mli'] = scan_detail[0]
+            elif scan_detail[0].attack_type == 'evasion':
+                result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
+                if len(result) == 0:
+                    continue
+                result = result[0]
+                scan_detail[0].accuracy = result.accuracy
+                if scan_detail[0].attack_method == 'fgsm':
+                    evasion['fgsm'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'cnw':
+                    evasion['cnw'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'jsma':
+                    evasion['jsma'] = scan_detail[0]
+            elif scan_detail[0].attack_type == 'exfiltration':
+                if scan_detail[0].attack_method == 'membership_inference':
+                    exfiltration['mi'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'label_only_membership_inference':
+                    exfiltration['lomi'] = scan_detail[0]
+                elif scan_detail[0].attack_method == 'model_Inversion':
+                    exfiltration['minv'] = scan_detail[0]
+            else:
+                return redirect('atd:target_list')
 
-    return render(request, 'atd/scan_result_list.html', dict(target=target,
-                                                             scan_details=scan_details))
+    return render(request, 'atd/scan_detail.html', dict(target=target,
+                                                        data_poisoning=data_poisoning,
+                                                        model_poisoning=model_poisoning,
+                                                        evasion=evasion,
+                                                        exfiltration=exfiltration))
 
 
 # Show scan report (html).
-def show_report(request):
+def report(request):
     params = request.POST
     if len(params) == 0:
         return redirect('atd:target_list')
@@ -160,62 +200,67 @@ def show_report(request):
     else:
         scan_result = scan_result[0]
 
-    copy_report_to = os.path.join(settings.BASE_DIR, 'atd', 'static', 'atd', 'img', 'report')
-    copy_media_to = os.path.join(settings.BASE_DIR, 'media', 'atd', 'report')
-    report_dir = os.path.join(copy_report_to, scan_result.report_path.split(os.sep)[-1])
-    download_dir = os.path.join(copy_media_to, scan_result.report_path.split(os.sep)[-1])
-    if os.path.exists(report_dir) is False:
-        shutil.copytree(scan_result.report_path, report_dir)
-    if os.path.exists(download_dir) is False:
-        shutil.copytree(scan_result.report_path, download_dir)
+    # Click "show" button.
+    if params['operation'] == 'show':
+        # Copy report's "img" dir to static dir on gyoiboard.
+        copy_report_to = os.path.join(settings.BASE_DIR, 'atd', 'static', 'atd', 'img', 'report')
+        report_dir = os.path.join(copy_report_to, scan_result.report_path.split(os.sep)[-1], 'img')
+        if os.path.exists(report_dir) is False:
+            shutil.copytree(os.path.join(scan_result.report_path, 'img'), report_dir)
 
-    target = {}
-    data_poisoning = {}
-    model_poisoning = {}
-    evasion = {}
-    exfiltration = {}
-    target['rank'] = scan_result.rank
-    target['summary'] = scan_result.summary
-    target['model_path'] = scan_result.target_path
-    target['dataset_path'] = scan_result.x_test_path
-    target['dataset_num'] = scan_result.x_test_num
-    target['accuracy'] = scan_result.accuracy
-    target['dataset_img'] = scan_result.report_path.split(os.sep)[-1]
-    if params['attack_type'] == 'evasion':
-        evasion['exist'] = True
-        evasion_result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
-        if len(evasion_result) == 0:
-            return redirect('atd:target_list')
-        evasion_result = evasion_result[0]
-        evasion['consequence'] = evasion_result.consequence
-        evasion['summary'] = evasion_result.summary
-
-        if params['attack_method'] == 'fgsm':
-            evasion['fgsm'] = {'exist': True}
-            fgsm_result = ExtEvasionFGSM.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
-            if len(fgsm_result) == 0:
+        # Build report's items.
+        target = {}
+        data_poisoning = {}
+        model_poisoning = {}
+        evasion = {}
+        exfiltration = {}
+        target['rank'] = scan_result.rank
+        target['summary'] = scan_result.summary
+        target['model_path'] = scan_result.target_path
+        target['dataset_path'] = scan_result.x_test_path
+        target['dataset_num'] = scan_result.x_test_num
+        target['accuracy'] = scan_result.accuracy
+        target['dataset_img'] = scan_result.report_path.split(os.sep)[-1]
+        if params['attack_type'] == 'evasion':
+            evasion['exist'] = True
+            evasion_result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
+            if len(evasion_result) == 0:
                 return redirect('atd:target_list')
-            fgsm_result = fgsm_result[0]
-            evasion['fgsm']['date'] = scan_result.exec_end_date
-            evasion['fgsm']['consequence'] = evasion_result.consequence
-            evasion['fgsm']['accuracy'] = evasion_result.accuracy
-            evasion['fgsm']['ipynb'] = os.path.join(report_dir, 'evasion_fgsm.ipynb')
-            evasion['fgsm']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
-            evasion['fgsm']['aes_path'] = os.path.join(report_dir, 'adv_fgsm.npz')
+            evasion_result = evasion_result[0]
+            evasion['consequence'] = evasion_result.consequence
+            evasion['summary'] = evasion_result.summary
+
+            if params['attack_method'] == 'fgsm':
+                evasion['fgsm'] = {'exist': True}
+                fgsm_result = ExtEvasionFGSM.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
+                if len(fgsm_result) == 0:
+                    return redirect('atd:target_list')
+                fgsm_result = fgsm_result[0]
+                evasion['fgsm']['date'] = scan_result.exec_end_date
+                evasion['fgsm']['consequence'] = evasion_result.consequence
+                evasion['fgsm']['accuracy'] = evasion_result.accuracy
+                evasion['fgsm']['ipynb'] = os.path.join(report_dir, 'evasion_fgsm.ipynb')
+                evasion['fgsm']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
+                evasion['fgsm']['aes_path'] = os.path.join(report_dir, 'adv_fgsm.npz')
+            else:
+                # TODO: 他の攻撃手法（CnW, JSMA）を追加すること。
+                print()
         else:
-            # TODO: 他の攻撃手法（CnW, JSMA）を追加すること。
+            # TODO: 他の攻撃手法を追加すること。
             print()
+        return render(request, 'atd/scan_report.html', dict(target=target, evasion=evasion))
+    # Click "download" button.
+    elif params['operation'] == 'download':
+        # Copy report's dir to media dir on gyoiboard.
+        extension = 'zip'
+        copy_media_to = os.path.join(settings.BASE_DIR, 'media', 'atd', 'report')
+        file_path = os.path.join(copy_media_to, scan_result.report_path.split(os.sep)[-1])
+        if os.path.exists(file_path + '.' + extension) is False:
+            shutil.make_archive(file_path, extension, root_dir=scan_result.report_path)
+        filename = (file_path + '.' + extension).split(os.sep)[-1]
+        return FileResponse(open(file_path + '.' + extension, 'rb'), as_attachment=True, filename=filename)
     else:
-        # TODO: 他の攻撃手法を追加すること。
-        print()
-    return render(request, 'atd/scan_report.html', dict(target=target, evasion=evasion))
-
-
-# Show scan report (ipynb).
-def download_report(request):
-    print()
-
-    return render(request, 'atd/target_list.html')
+        return redirect('atd:target_list')
 
 
 # Execute fix.

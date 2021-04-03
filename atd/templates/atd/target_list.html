@@ -9,10 +9,12 @@
       <thead>
         <tr>
           <th scope="col">ID</th>
-          <th scope="col">Target name</th>
+          <th scope="col">Model name</th>
           <th scope="col">Overview</th>
+          <th scope="col">Author</th>
+          <th scope="col">Registration</th>
           <th scope="col">Rank</th>
-          <th scope="col">Last scan date</th>
+          <th scope="col">Scan date</th>
           <th scope="col">Status</th>
           <th scope="col">Operation</th>
         </tr>
@@ -23,14 +25,15 @@
           <th scope="row">{{ target.id }}</th>
           <td>{{ target.name }}</td>
           <td>{{ target.overview }}</td>
+          <td>{{ target.author }}</td>
+          <td>{{ target.registration_date}}</td>
           <td>{{ target.rank }}</td>
           <td>{{ target.last_scan_date }}</td>
           <td>{{ target.status }}</td>
           <td>
             <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-primary btn-sm">Edit</a>
-            <a href="{% url 'atd:scan_target' target_id=target.id %}" class="btn btn-success btn-sm">Scan</a>
-            <a href="{% url 'atd:scan_result' target_id=target.id %}" class="btn btn-info btn-sm">Scan results</a>
-            <a href="{% url 'atd:fix_target' target_id=target.id %}" class="btn btn-warning btn-sm">Fix</a>
+            <!--<a href="{% url 'atd:scan_target' target_id=target.id %}" class="btn btn-success btn-sm">Scan</a>-->
+            <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-info btn-sm">Detail</a>
             <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
           </td>
         </tr>

@@ -9,14 +9,17 @@ class FileUpload(models.Model):
                             upload_to='atd/target/%Y%m%d%H%M%S%f',
                             validators=[FileExtensionValidator(['h5', 'npz'])])
     overview = models.CharField(verbose_name='Overview', max_length=255, blank=True)
+    author = models.CharField(verbose_name='Author', max_length=255, blank=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 # Model (Target).
 class Target(models.Model):
     # Target.
-    name = models.CharField(verbose_name='Target name', max_length=255, blank=False)
+    name = models.CharField(verbose_name='Model name', max_length=255, blank=False)
     overview = models.CharField(verbose_name='Overview', max_length=255, default='N/A')
+    author = models.CharField(verbose_name='Author', max_length=255, blank=False)
+    registration_date = models.CharField(verbose_name='Registration', max_length=255, default=False)
     rank = models.CharField(verbose_name='Rank', max_length=10, default='N/A')
     last_scan_date = models.CharField(verbose_name='Last scan date', max_length=255, default='N/A')
     status = models.CharField(verbose_name='Status', max_length=255, default='N/A')

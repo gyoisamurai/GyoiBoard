@@ -11,9 +11,8 @@ urlpatterns = [
     path('scan/target/<int:target_id>/', views.scan_target, name='scan_target'),
     path('scan/setting/<int:target_id>/', views.scan_setting, name='scan_setting'),
     path('scan/exec/<int:target_id>/', views.scan_exec, name='scan_exec'),
-    path('scan/result/<int:target_id>/', views.scan_result, name='scan_result'),
-    path('report/show/', views.show_report, name='show_report'),
-    path('report/download/', views.download_report, name='download_report'),
+    path('scan/detail/<int:target_id>/', views.scan_detail, name='scan_detail'),
+    path('report/', views.report, name='report'),
     path('fix/target/<int:target_id>/', views.scan_exec, name='fix_target'),
     path('target/del/<int:target_id>/', views.target_del, name='target_del'),
 ]
