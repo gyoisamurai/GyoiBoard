@@ -1,13 +1,31 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
+from atd.util import Utilty
+
 
 # Model (Target) Upload.
 class FileUpload(models.Model):
+    utility = Utilty()
+
     # Upload file.
-    file = models.FileField(verbose_name='Upload File',
-                            upload_to='atd/target/%Y%m%d%H%M%S%f',
-                            validators=[FileExtensionValidator(['h5', 'npz'])])
+    save_dir_name = utility.get_random_token(48)
+    upload_to = 'atd/target/{}'.format(save_dir_name)
+    file_model = models.FileField(verbose_name='Model File (*.h5)',
+                                  upload_to=upload_to,
+                                  validators=[FileExtensionValidator(['h5'])])
+    file_x_train = models.FileField(verbose_name='X_train File (*.npz)',
+                                    upload_to=upload_to,
+                                    validators=[FileExtensionValidator(['npz'])])
+    file_y_train = models.FileField(verbose_name='y_train File (*.npz)',
+                                    upload_to=upload_to,
+                                    validators=[FileExtensionValidator(['npz'])])
+    file_x_test = models.FileField(verbose_name='X_test File (*.npz)',
+                                   upload_to=upload_to,
+                                   validators=[FileExtensionValidator(['npz'])])
+    file_y_test = models.FileField(verbose_name='y_test File (*.npz)',
+                                   upload_to=upload_to,
+                                   validators=[FileExtensionValidator(['npz'])])
     overview = models.CharField(verbose_name='Overview', max_length=255, blank=True)
     author = models.CharField(verbose_name='Author', max_length=255, blank=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
@@ -17,6 +35,10 @@ class FileUpload(models.Model):
 class Target(models.Model):
     # Target.
     name = models.CharField(verbose_name='Model name', max_length=255, blank=False)
+    x_train = models.CharField(verbose_name='X_train', max_length=255)
+    y_train = models.CharField(verbose_name='y_train', max_length=255)
+    x_test = models.CharField(verbose_name='X_test', max_length=255)
+    y_test = models.CharField(verbose_name='y_test', max_length=255)
     overview = models.CharField(verbose_name='Overview', max_length=255, default='N/A')
     author = models.CharField(verbose_name='Author', max_length=255, blank=False)
     registration_date = models.CharField(verbose_name='Registration', max_length=255, default=False)

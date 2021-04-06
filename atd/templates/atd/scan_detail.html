@@ -20,12 +20,16 @@
             <td>{{ target.id }}</td>
           </tr>
           <tr>
+            <th>Model path</th>
+            <td>{{ target.target_path }}</td>
+          </tr>
+          <tr>
             <th>Model name</th>
             <td>{{ target.name }}</td>
           </tr>
           <tr>
-            <th>Model path</th>
-            <td>{{ target.target_path }}</td>
+            <th>Dataset</th>
+            <td>{{ target.x_train }}, {{ target.y_train }}, {{ target.x_test }}, {{ target.y_test }}</td>
           </tr>
           <tr>
             <th>Author</th>

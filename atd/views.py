@@ -9,7 +9,7 @@ from django.conf import settings
 from gyoiboard.tasks import executation
 from atd.models import Target, ScanResult, ExtScanResult, \
     ExtScanResultEvasion, ScanSettingFGSM, ScanSettingCnW, ScanSettingJSMA, ExtEvasionFGSM, ExtEvasionCnW, ExtEvasionJSMA
-from atd.forms import UploadFileForm, TargetForm, FGSMSettingForm, CnWSettingForm, JSMASettingForm
+from atd.forms import TargetRegistrationForm, TargetForm, FGSMSettingForm, CnWSettingForm, JSMASettingForm
 from atd.util import Utilty
 
 
@@ -17,21 +17,25 @@ from atd.util import Utilty
 def modelform_upload(request):
     target = Target()
     if request.method == 'POST':
-        upload_file = UploadFileForm(request.POST, request.FILES)
+        upload_file = TargetRegistrationForm(request.POST, request.FILES)
         if upload_file.is_valid():
             # Save file.
             saved_file = upload_file.save()
 
             # Update Target model.
-            target.name = request.FILES['file']
+            target.name = request.FILES['file_model']
+            target.x_train = request.FILES['file_x_train']
+            target.y_train = request.FILES['file_y_train']
+            target.x_test = request.FILES['file_x_test']
+            target.y_test = request.FILES['file_y_test']
             target.overview = request.POST['overview']
             target.author = request.POST['author']
             target.registration_date = saved_file.uploaded_at.strftime('%Y-%m-%d %H:%M:%S')
-            target.target_path = saved_file.file.url
+            target.target_path = os.path.dirname(saved_file.file_model.url)
             target.save()
             return redirect('atd:target_list')
     else:
-        form = UploadFileForm()
+        form = TargetRegistrationForm()
     return render(request, 'atd/modelform_upload.html', {'form': form})
 
 

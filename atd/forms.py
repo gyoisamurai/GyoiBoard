@@ -3,15 +3,15 @@ from django import forms
 from atd.models import FileUpload, Target, ScanSettingFGSM, ScanSettingCnW, ScanSettingJSMA
 
 
-class UploadFileForm(forms.ModelForm):
+class TargetRegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(UploadFileForm, self).__init__(*args, **kwargs)
+        super(TargetRegistrationForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-control"
 
     class Meta:
         model = FileUpload
-        fields = ('file', 'overview', 'author')
+        fields = ('file_model', 'file_x_train', 'file_y_train', 'file_x_test', 'file_y_test', 'overview', 'author')
 
 
 class TargetForm(forms.ModelForm):
@@ -20,6 +20,11 @@ class TargetForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-control"
 
+        self.fields['name'].widget.attrs['readonly'] = 'readonly'
+        self.fields['x_train'].widget.attrs['readonly'] = 'readonly'
+        self.fields['y_train'].widget.attrs['readonly'] = 'readonly'
+        self.fields['x_test'].widget.attrs['readonly'] = 'readonly'
+        self.fields['y_test'].widget.attrs['readonly'] = 'readonly'
         self.fields['registration_date'].widget.attrs['readonly'] = 'readonly'
         self.fields['rank'].widget.attrs['readonly'] = 'readonly'
         self.fields['last_scan_date'].widget.attrs['readonly'] = 'readonly'
@@ -28,7 +33,8 @@ class TargetForm(forms.ModelForm):
 
     class Meta:
         model = Target
-        fields = ('name', 'overview', 'author', 'registration_date', 'rank', 'last_scan_date', 'status', 'target_path')
+        fields = ('name', 'x_train', 'y_train', 'x_test', 'y_test', 'overview', 'author', 'registration_date',
+                  'rank', 'last_scan_date', 'status', 'target_path')
 
 
 # FGSM.

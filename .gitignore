@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 # Upload files, so on
+.idea/
 gyoiboard/settings.py_bk
 media/atd/report/*
 media/atd/target/*
