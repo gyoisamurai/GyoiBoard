@@ -7,8 +7,9 @@ from django.http import FileResponse
 from django.conf import settings
 
 from gyoiboard.tasks import executation
-from atd.models import Target, ScanResult, ExtScanResult, ExtScanResultEvasion, ExtEvasionFGSM
-from atd.forms import UploadFileForm, TargetForm, FGSMSettingForm
+from atd.models import Target, ScanResult, ExtScanResult, \
+    ExtScanResultEvasion, ScanSettingFGSM, ScanSettingCnW, ScanSettingJSMA, ExtEvasionFGSM, ExtEvasionCnW, ExtEvasionJSMA
+from atd.forms import UploadFileForm, TargetForm, FGSMSettingForm, CnWSettingForm, JSMASettingForm
 from atd.util import Utilty
 
 
@@ -32,6 +33,12 @@ def modelform_upload(request):
     else:
         form = UploadFileForm()
     return render(request, 'atd/modelform_upload.html', {'form': form})
+
+
+# Top Page.
+def top_page(request):
+    targets = Target.objects.all().order_by('id')
+    return render(request, 'atd/index.html', {'targets': targets})
 
 
 # Target list.
@@ -59,14 +66,80 @@ def target_edit(request, target_id=None):
     return render(request, 'atd/target_edit.html', dict(form=form, target_id=target_id))
 
 
-# Select scan.
-def scan_target(request, target_id):
+# Get specify record using target id, attack method.
+def select_specify_record(target_id, attack_method):
+    scan_result = ScanResult.objects.filter(scan_result__exact=target_id,
+                                            attack_method__exact=attack_method).order_by('id').reverse().first()
+    if scan_result is None:
+        return None
+    else:
+        return ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
+
+
+# Get all scan results.
+def get_scan_results(target_id):
     if target_id:
         target = get_object_or_404(Target, pk=target_id)
     else:
         return redirect('atd:target_list')
 
-    return render(request, 'atd/scan_select.html', dict(target_id=target_id))
+    data_poisoning = {'data_poisoning_fc': {}, 'data_poisoning_cp': {}, 'data_poisoning_bp': {}}
+    model_poisoning = {'model_poisoning_ni': {}, 'model_poisoning_mli': {}}
+    evasion = {'evasion_fgsm': {}, 'evasion_cnw': {}, 'evasion_jsma': {}}
+    exfiltration = {'exfiltration_mi': {}, 'exfiltration_lomi': {}, 'exfiltration_minv': {}}
+    for attack_type in ['data_poisoning', 'model_poisoning', 'evasion', 'exfiltration']:
+        # Data Poisoning.
+        if attack_type == 'data_poisoning':
+            for attack_method in ['data_poisoning_fc', 'data_poisoning_cp', 'data_poisoning_bp']:
+                scan_detail = select_specify_record(target_id, attack_method)
+                if scan_detail is None:
+                    continue
+                else:
+                    data_poisoning[attack_method] = scan_detail[0]
+        # Model Poisoning.
+        elif attack_type == 'model_poisoning':
+            for attack_method in ['model_poisoning_ni', 'model_poisoning_mli']:
+                scan_detail = select_specify_record(target_id, attack_method)
+                if scan_detail is None:
+                    continue
+                else:
+                    model_poisoning[attack_method] = scan_detail[0]
+        # Evasion.
+        elif attack_type == 'evasion':
+            for attack_method in ['evasion_fgsm', 'evasion_cnw', 'evasion_jsma']:
+                scan_detail = select_specify_record(target_id, attack_method)
+                if scan_detail is None or len(scan_detail) == 0:
+                    continue
+                result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=scan_detail[0].scan_id)
+                if len(result) == 0:
+                    continue
+                else:
+                    result = result[0]
+                    scan_detail[0].accuracy = result.accuracy
+                    evasion[attack_method] = scan_detail[0]
+        # Exfiltration.
+        elif attack_type == 'exfiltration':
+            for attack_method in ['exfiltration_mi', 'exfiltration_lomi', 'exfiltration_minv']:
+                scan_detail = select_specify_record(target_id, attack_method)
+                if scan_detail is None:
+                    continue
+                else:
+                    exfiltration[attack_method] = scan_detail[0]
+        else:
+            return redirect('atd:target_list')
+
+    return target, data_poisoning, model_poisoning, evasion, exfiltration
+
+
+# Scanning dashboard.
+def scan_detail(request, target_id):
+    # Get all scan's results.
+    target, data_poisoning, model_poisoning, evasion, exfiltration = get_scan_results(target_id)
+    return render(request, 'atd/scan_detail.html', dict(target=target,
+                                                        data_poisoning=data_poisoning,
+                                                        model_poisoning=model_poisoning,
+                                                        evasion=evasion,
+                                                        exfiltration=exfiltration))
 
 
 # Scan Setting.
@@ -79,6 +152,12 @@ def scan_setting(request, target_id):
         if request.POST['method'] == 'evasion_fgsm':
             attack_method = utility.transform_attack_method_name(request.POST['method'])
             setting_form = FGSMSettingForm()
+        elif request.POST['method'] == 'evasion_cnw':
+            attack_method = utility.transform_attack_method_name(request.POST['method'])
+            setting_form = CnWSettingForm()
+        elif request.POST['method'] == 'evasion_jsma':
+            attack_method = utility.transform_attack_method_name(request.POST['method'])
+            setting_form = JSMASettingForm()
         else:
             # TODO: 他の攻撃手法のフォームを用意すること。
             attack_method = 'Fast Gradient Signed Method'
@@ -92,13 +171,98 @@ def scan_setting(request, target_id):
                                                          attack_method=attack_method))
 
 
+# Update scan setting.
+def update_setting(request, target_id):
+    params = request.POST
+    # Insert/Update EvasionFGSMTBL
+    if params['attack_id'] == 'evasion_fgsm':
+        targeted = 0
+        if 'targeted' in params.keys():
+            targeted = 1
+        fgsm_setting = ExtEvasionFGSM(target_id=target_id,
+                                      epsilon=params['eps'],
+                                      epsilon_step=params['eps_step'],
+                                      targeted=targeted,
+                                      batch_size=params['batch_size'])
+        fgsm_setting.save()
+    # Insert/Update EvasionCnWTBL
+    elif params['attack_id'] == 'evasion_cnw':
+        cnw_setting = ExtEvasionCnW(target_id=target_id,
+                                    confidence=params['confidence'],
+                                    batch_size=params['batch_size'])
+        cnw_setting.save()
+    # Insert/Update EvasionJSMATBL
+    elif params['attack_id'] == 'evasion_jsma':
+        jsma_setting = ExtEvasionJSMA(target_id=target_id,
+                                      theta=params['theta'],
+                                      gamma=params['gamma'],
+                                      batch_size=params['batch_size'])
+        jsma_setting.save()
+    else:
+        # TODO: 他の攻撃手法の設定更新を追加すること。
+        return redirect('atd:target_list')
+
+    # Get all scan's results.
+    target, data_poisoning, model_poisoning, evasion, exfiltration = get_scan_results(target_id)
+    return render(request, 'atd/scan_detail.html', dict(target=target,
+                                                        data_poisoning=data_poisoning,
+                                                        model_poisoning=model_poisoning,
+                                                        evasion=evasion,
+                                                        exfiltration=exfiltration))
+
+
 # Build ATD's command.
 def build_atd_command(scan_id, params, target):
     model_path = '/home/itakaesu/PycharmProjects/GyoiBoard' + target.target_path
-    common = '--scan_id {} --op_type attack --model_name {}'.format(scan_id, model_path)
+    common = '--target_id {} --scan_id {} --op_type attack --model_name {}'.format(target.id, scan_id, model_path)
     common_test_data = '--test_data_name X_test.npz --test_label_name y_test.npz --use_x_test_num 100'
-    if params['attack_id'] == 'evasion_fgsm':
-        specify_option = '--attack_type evasion --attack_evasion fgsm --fgsm_epsilon {}'.format(params['eps'])
+
+    # Build attack's parameters.
+    # FGSM.
+    if params['method'] == 'evasion_fgsm':
+        specify_option = '--attack_type evasion --attack_evasion fgsm'
+        fgsm_setting = ExtEvasionFGSM.objects.filter(target_id__exact=target.id)
+        if len(fgsm_setting) != 0:
+            # Setting of DB.
+            specify_option += ' --fgsm_epsilon {}'.format(fgsm_setting[0].epsilon)
+            specify_option += ' --fgsm_eps_step {}'.format(fgsm_setting[0].epsilon_step)
+            if fgsm_setting[0].targeted == 1:
+                specify_option += ' --fgsm_targeted'
+            specify_option += ' --fgsm_batch_size {}'.format(fgsm_setting[0].batch_size)
+        else:
+            # Default setting.
+            fgsm_setting = ScanSettingFGSM()
+            specify_option += ' --fgsm_epsilon {}'.format(fgsm_setting.eps)
+            specify_option += ' --fgsm_eps_step {}'.format(fgsm_setting.eps_step)
+            specify_option += ' --fgsm_batch_size {}'.format(fgsm_setting.batch_size)
+    # CnW.
+    elif params['method'] == 'evasion_cnw':
+        specify_option = '--attack_type evasion --attack_evasion cnw'
+        cnw_setting = ExtEvasionCnW.objects.filter(target_id__exact=target.id)
+        if len(cnw_setting) != 0:
+            # Setting of DB.
+            specify_option += ' --cnw_confidence {}'.format(cnw_setting[0].confidence)
+            specify_option += ' --cnw_batch_size {}'.format(cnw_setting[0].batch_size)
+        else:
+            # Default setting.
+            cnw_setting = ScanSettingCnW()
+            specify_option += ' --cnw_confidence {}'.format(cnw_setting.confidence)
+            specify_option += ' --cnw_batch_size {}'.format(cnw_setting.batch_size)
+    # JSMA.
+    elif params['method'] == 'evasion_jsma':
+        specify_option = '--attack_type evasion --attack_evasion jsma'
+        jsma_setting = ExtEvasionJSMA.objects.filter(target_id__exact=target.id)
+        if len(jsma_setting) != 0:
+            # Setting of DB.
+            specify_option += ' --jsma_theta {}'.format(jsma_setting[0].theta)
+            specify_option += ' --jsma_gamma {}'.format(jsma_setting[0].gamma)
+            specify_option += ' --jsma_batch_size {}'.format(jsma_setting[0].batch_size)
+        else:
+            # Default setting.
+            jsma_setting = ScanSettingJSMA()
+            specify_option += ' --jsma_theta {}'.format(jsma_setting.theta)
+            specify_option += ' --jsma_gamma {}'.format(jsma_setting.gamma)
+            specify_option += ' --jsma_batch_size {}'.format(jsma_setting.batch_size)
     else:
         # TODO: 他のオプションを組み立てる。
         specify_option = '--attack_type evasion --attack_evasion fgsm --fgsm_epsilon {}'.format(params['eps'])
@@ -108,7 +272,6 @@ def build_atd_command(scan_id, params, target):
 # Scan Execution.
 def scan_exec(request, target_id):
     utility = Utilty()
-
     if target_id:
         target = get_object_or_404(Target, pk=target_id)
     else:
@@ -119,68 +282,16 @@ def scan_exec(request, target_id):
     command_option = build_atd_command(scan_id, request.POST, target)
     command = 'python3 {}atd.py {}'.format(settings.ATD_DIR, command_option)
     task = executation.delay('{}'.format(command))
-    print(scan_id, command)
 
     # Update to ScanResult.
     scan_result = ScanResult()
     scan_result.scan_result = target
     scan_result.scan_id = scan_id
-    scan_result.attack_method = utility.transform_attack_method_name(request.POST['attack_id'])
+    scan_result.attack_method = request.POST['method']
     scan_result.save()
 
-    return redirect('atd:target_list')
-
-
-# Scanning dashboard.
-def scan_detail(request, target_id):
-    if target_id:
-        target = get_object_or_404(Target, pk=target_id)
-        scan_results = ScanResult.objects.filter(scan_result__exact=target_id)
-    else:
-        return redirect('atd:target_list')
-
-    scan_details = []
-    data_poisoning = {'fc': {}, 'cp': {}, 'bp': {}}
-    model_poisoning = {'ni': {}, 'mli': {}}
-    evasion = {'fgsm': {}, 'cnw': {}, 'jsma': {}}
-    exfiltration = {'mi': {}, 'lomi': {}, 'minv': {}}
-    for scan_result in scan_results:
-        scan_detail = ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
-        if len(scan_detail) != 0:
-            if scan_detail[0].attack_type == 'data_poisoning':
-                if scan_detail[0].attack_method == 'feature_collision':
-                    data_poisoning['fc'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'convex_polytope':
-                    data_poisoning['cp'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'bullseye_polytope':
-                    data_poisoning['bp'] = scan_detail[0]
-            elif scan_detail[0].attack_type == 'model_poisoning':
-                if scan_detail[0].attack_method == 'node_injection':
-                    model_poisoning['ni'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'malicious_layer_injection':
-                    model_poisoning['mli'] = scan_detail[0]
-            elif scan_detail[0].attack_type == 'evasion':
-                result = ExtScanResultEvasion.objects.db_manager('atd').filter(scan_id__exact=scan_result.scan_id)
-                if len(result) == 0:
-                    continue
-                result = result[0]
-                scan_detail[0].accuracy = result.accuracy
-                if scan_detail[0].attack_method == 'fgsm':
-                    evasion['fgsm'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'cnw':
-                    evasion['cnw'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'jsma':
-                    evasion['jsma'] = scan_detail[0]
-            elif scan_detail[0].attack_type == 'exfiltration':
-                if scan_detail[0].attack_method == 'membership_inference':
-                    exfiltration['mi'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'label_only_membership_inference':
-                    exfiltration['lomi'] = scan_detail[0]
-                elif scan_detail[0].attack_method == 'model_Inversion':
-                    exfiltration['minv'] = scan_detail[0]
-            else:
-                return redirect('atd:target_list')
-
+    # Get all scan's results.
+    target, data_poisoning, model_poisoning, evasion, exfiltration = get_scan_results(target_id)
     return render(request, 'atd/scan_detail.html', dict(target=target,
                                                         data_poisoning=data_poisoning,
                                                         model_poisoning=model_poisoning,
@@ -201,7 +312,7 @@ def report(request):
         scan_result = scan_result[0]
 
     # Click "show" button.
-    if params['operation'] == 'show':
+    if params['operation'] == 'view':
         # Copy report's "img" dir to static dir on gyoiboard.
         copy_report_to = os.path.join(settings.BASE_DIR, 'atd', 'static', 'atd', 'img', 'report')
         report_dir = os.path.join(copy_report_to, scan_result.report_path.split(os.sep)[-1], 'img')
@@ -242,6 +353,30 @@ def report(request):
                 evasion['fgsm']['ipynb'] = os.path.join(report_dir, 'evasion_fgsm.ipynb')
                 evasion['fgsm']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
                 evasion['fgsm']['aes_path'] = os.path.join(report_dir, 'adv_fgsm.npz')
+            elif params['attack_method'] == 'jsma':
+                evasion['jsma'] = {'exist': True}
+                jsma_result = ExtEvasionJSMA.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
+                if len(jsma_result) == 0:
+                    return redirect('atd:target_list')
+                jsma_result = jsma_result[0]
+                evasion['jsma']['date'] = scan_result.exec_end_date
+                evasion['jsma']['consequence'] = evasion_result.consequence
+                evasion['jsma']['accuracy'] = evasion_result.accuracy
+                evasion['jsma']['ipynb'] = os.path.join(report_dir, 'evasion_jsma.ipynb')
+                evasion['jsma']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
+                evasion['jsma']['aes_path'] = os.path.join(report_dir, 'adv_jsma.npz')
+            elif params['attack_method'] == 'cnw':
+                evasion['cnw'] = {'exist': True}
+                cnw_result = ExtEvasionCnW.objects.db_manager('atd').filter(scan_id__exact=params['scan_id'])
+                if len(cnw_result) == 0:
+                    return redirect('atd:target_list')
+                cnw_result = cnw_result[0]
+                evasion['cnw']['date'] = scan_result.exec_end_date
+                evasion['cnw']['consequence'] = evasion_result.consequence
+                evasion['cnw']['accuracy'] = evasion_result.accuracy
+                evasion['cnw']['ipynb'] = os.path.join(report_dir, 'evasion_cnw.ipynb')
+                evasion['cnw']['countermeasure'] = 'Adversarial Training, Feature Squeezing'
+                evasion['cnw']['aes_path'] = os.path.join(report_dir, 'adv_cnw.npz')
             else:
                 # TODO: 他の攻撃手法（CnW, JSMA）を追加すること。
                 print()

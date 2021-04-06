@@ -80,9 +80,29 @@ class Utilty:
 
     # Transform attack_id to attack method's name.
     def transform_attack_method_name(self, attack_id):
-        attack_method_name = ''
-        if attack_id == 'evasion_fgsm':
-            attack_method_name = 'Fast Gradient Signed Method'
+        attack_full_name = ''
+        if attack_id == 'data_poisoning_fc':
+            attack_full_name = 'Feature Collision Attack'
+        elif attack_id == 'data_poisoning_cp':
+            attack_full_name = 'Convex Polytope Attack'
+        elif attack_id == 'data_poisoning_bp':
+            attack_full_name = 'Bullseye Polytope Attack'
+        elif attack_id == 'model_poisoning_ni':
+            attack_full_name = 'Node Injection Attack'
+        elif attack_id == 'model_poisoning_mli':
+            attack_full_name = 'Malicious Layer Injection Attack'
+        elif attack_id == 'evasion_fgsm':
+            attack_full_name = 'Fast Gradient Signed Method (FGSM)'
+        elif attack_id == 'evasion_cnw':
+            attack_full_name = 'Carlini and Wagner L_2 Attack'
+        elif attack_id == 'evasion_jsma':
+            attack_full_name = 'Jacobian Saliency Map Attack (JSMA)'
+        elif attack_id == 'exfiltration_mi':
+            attack_full_name = 'Membership Inference Attack'
+        elif attack_id == 'exfiltration_lomi':
+            attack_full_name = 'Label Only Membership Inference Attack'
+        elif attack_id == 'exfiltration_minv':
+            attack_full_name = 'Model Inversion Attack'
         else:
-            attack_method_name = 'Fast Gradient Signed Method'
-        return attack_method_name
+            attack_full_name = 'Unknown'
+        return attack_full_name

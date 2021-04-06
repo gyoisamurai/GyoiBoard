@@ -3,18 +3,25 @@
 
 {% block title %}Scan Setting{% endblock title %}
 
+{% block breadcrumb_title %}Scan Setting{% endblock breadcrumb_title %}
+
+{% block body_title %}Scan Setting{% endblock body_title %}
+
+{% block body_description %}You can tune the parameters of "{{ attack_method }}".{% endblock body_description %}
+
 {% block content %}
-<h4 class="mt-4 mb-5 border-bottom">Scan Setting >> {{ attack_method }}</h4>
-<form action="{% url 'atd:scan_exec' target_id=target_id %}" method="post">
+<h4 class="mt-4 border-bottom">{{ attack_method }}</h4>
+
+<form action="{% url 'atd:update_setting' target_id=target_id %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='horizontal' %}
     <input type="hidden" name="attack_id" value="{{ attack_id }}">
     <div class="form-group row">
         <div class="offset-md-3 col-md-9">
-            <button type="submit" class="btn btn-primary">Scan</button>
+            <button type="submit" class="btn btn-primary">Update</button>
         </div>
     </div>
 </form>
 
-<a href="{% url 'atd:scan_detail' target_id=target_id %}" class="btn btn-secondary btn-sm">Back</a>
+<a href="{% url 'atd:scan_detail' target_id=target_id %}" class="btn btn-secondary">Back</a>
 {% endblock content %}

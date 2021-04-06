@@ -3,16 +3,20 @@
 
 {% block title %}Model Upload{% endblock title %}
 
+{% block breadcrumb_title %}Model Upload{% endblock breadcrumb_title %}
+
+{% block body_title %}Model Upload{% endblock body_title %}
+
+{% block body_description %}You can upload a new model and dataset.{% endblock body_description %}
+
 {% block content %}
-    <h4 class="mt-4 mb-5 border-bottom">Model Upload</h4>
-    <form action="{% url 'atd:target_upload' %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {% bootstrap_form form layout='horizontal' %}
-      <div class="form-group row">
-        <div class="offset-md-3 col-md-9">
-          <button type="submit" class="btn btn-primary">Upload</button>
+<form action="{% url 'atd:target_upload' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+        <div class="form-group row">
+            <div class="offset-md-3 col-md-9">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
         </div>
-      </div>
-    </form>
-    <a href="{% url 'atd:target_list' %}" class="btn btn-secondary btn-sm">Back</a>
+</form>
 {% endblock content %}

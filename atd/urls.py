@@ -5,11 +5,12 @@ from atd import views
 
 app_name = 'atd'
 urlpatterns = [
+    path('top/', views.top_page, name='top'),
     path('target/', views.target_list, name='target_list'),
     path('target/upload/', views.modelform_upload, name='target_upload'),
     path('target/mod/<int:target_id>/', views.target_edit, name='target_mod'),
-    path('scan/target/<int:target_id>/', views.scan_target, name='scan_target'),
     path('scan/setting/<int:target_id>/', views.scan_setting, name='scan_setting'),
+    path('scan/setting/update/<int:target_id>/', views.update_setting, name='update_setting'),
     path('scan/exec/<int:target_id>/', views.scan_exec, name='scan_exec'),
     path('scan/detail/<int:target_id>/', views.scan_detail, name='scan_detail'),
     path('report/', views.report, name='report'),

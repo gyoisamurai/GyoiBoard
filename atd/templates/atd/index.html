@@ -1,0 +1,94 @@
+{% extends "atd/base.html" %}
+
+{% block title %}ATD Dashboard{% endblock title %}
+
+{% block breadcrumb_title %}Overview{% endblock breadcrumb_title %}
+
+{% block body_title %}Dashboard{% endblock body_title %}
+
+{% block body_description %}This is the dashboard of ATD{% endblock body_description %}
+
+{% block content %}
+<div class="row my-3">
+    <!-- Card 1 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Score</h5>
+            <div class="card-body">
+                <h5 class="card-title">345k</h5>
+                <p class="card-text">Feb 1 - Apr 1, United States</p>
+                <p class="card-text text-success">18.2% increase since last month</p>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Targets</h5>
+            <div class="card-body">
+                <h5 class="card-title">$2.4k</h5>
+                <p class="card-text">Feb 1 - Apr 1, United States</p>
+                <p class="card-text text-success">4.6% increase since last month</p>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Purchases</h5>
+            <div class="card-body">
+                <h5 class="card-title">43</h5>
+                <p class="card-text">Feb 1 - Apr 1, United States</p>
+                <p class="card-text text-danger">2.6% decrease since last month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header"><a href="{% url 'atd:target_list' %}">Target List</a></h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Model name</th>
+                            <th scope="col">Overview</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Registration</th>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Scan date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Operation</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for target in targets %}
+                        <tr>
+                            <th scope="row">{{ target.id }}</th>
+                            <td>{{ target.name }}</td>
+                            <td>{{ target.overview }}</td>
+                            <td>{{ target.author }}</td>
+                            <td>{{ target.registration_date}}</td>
+                            <td>{{ target.rank }}</td>
+                            <td>{{ target.last_scan_date }}</td>
+                            <td>{{ target.status }}</td>
+                            <td>
+                                <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-info btn-sm">Edit</a>
+                                <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="#" class="btn btn-block btn-light">View all</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

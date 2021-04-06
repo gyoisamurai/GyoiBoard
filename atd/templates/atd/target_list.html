@@ -1,43 +1,54 @@
 {% extends "atd/base.html" %}
 
-{% block title %}Target list{% endblock title %}
+{% block title %}Target List{% endblock title %}
+
+{% block breadcrumb_title %}Target List{% endblock breadcrumb_title %}
+
+{% block body_title %}Target List{% endblock body_title %}
+
+{% block body_description %}This is the target list.{% endblock body_description %}
 
 {% block content %}
-    <h4 class="mt-4 border-bottom">Target list</h4>
-    <a href="{% url 'atd:target_upload' %}" class="btn btn-primary btn-sm my-3">Upload</a>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Model name</th>
-          <th scope="col">Overview</th>
-          <th scope="col">Author</th>
-          <th scope="col">Registration</th>
-          <th scope="col">Rank</th>
-          <th scope="col">Scan date</th>
-          <th scope="col">Status</th>
-          <th scope="col">Operation</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for target in targets %}
-        <tr>
-          <th scope="row">{{ target.id }}</th>
-          <td>{{ target.name }}</td>
-          <td>{{ target.overview }}</td>
-          <td>{{ target.author }}</td>
-          <td>{{ target.registration_date}}</td>
-          <td>{{ target.rank }}</td>
-          <td>{{ target.last_scan_date }}</td>
-          <td>{{ target.status }}</td>
-          <td>
-            <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-primary btn-sm">Edit</a>
-            <!--<a href="{% url 'atd:scan_target' target_id=target.id %}" class="btn btn-success btn-sm">Scan</a>-->
-            <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-info btn-sm">Detail</a>
-            <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Model name</th>
+            <th scope="col">Overview</th>
+            <th scope="col">Author</th>
+            <th scope="col">Registration</th>
+            <th scope="col">Rank</th>
+            <th scope="col">Scan date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Operation</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for target in targets %}
+          <tr>
+            <th scope="row">{{ target.id }}</th>
+            <td>{{ target.name }}</td>
+            <td>{{ target.overview }}</td>
+            <td>{{ target.author }}</td>
+            <td>{{ target.registration_date}}</td>
+            <td>{{ target.rank }}</td>
+            <td>{{ target.last_scan_date }}</td>
+            <td>{{ target.status }}</td>
+            <td>
+              <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-info btn-sm">Detail</a>
+              <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
