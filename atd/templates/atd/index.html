@@ -9,42 +9,85 @@
 {% block body_description %}This is the dashboard of ATD{% endblock body_description %}
 
 {% block content %}
+<!-- Row 1 -->
 <div class="row my-3">
     <!-- Card 1 -->
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
-            <h5 class="card-header">Score</h5>
+            <h5 class="card-header">Rank Count</h5>
             <div class="card-body">
-                <h5 class="card-title">345k</h5>
-                <p class="card-text">Feb 1 - Apr 1, United States</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>Critical</th>
+                            <th>Weak</th>
+                            <th>Normal</th>
+                            <th>Secure</th>
+                        </tr>
+                        <tr>
+                            <td>{{ rank_count.critical }}</td>
+                            <td>{{ rank_count.weak }}</td>
+                            <td>{{ rank_count.normal }}</td>
+                            <td>{{ rank_count.secure }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Target Num</h5>
+            <div class="card-body">
+                <h5 class="card-title">{{ target_num.num }}</h5>
+                <p class="card-text">Latest Registration: {{ target_num.latest_date }}</p>
                 <p class="card-text text-success">18.2% increase since last month</p>
             </div>
         </div>
     </div>
-    <!-- Card 2 -->
+    <!-- Card 3 -->
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
-            <h5 class="card-header">Targets</h5>
+            <h5 class="card-header">Scan Num</h5>
             <div class="card-body">
-                <h5 class="card-title">$2.4k</h5>
-                <p class="card-text">Feb 1 - Apr 1, United States</p>
+                <h5 class="card-title">{{ scan_num.num }}</h5>
+                <p class="card-text">Latest Scan: {{ scan_num.latest_date }}</p>
                 <p class="card-text text-success">4.6% increase since last month</p>
-            </div>
-        </div>
-    </div>
-    <!-- Card 2 -->
-    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-        <div class="card">
-            <h5 class="card-header">Purchases</h5>
-            <div class="card-body">
-                <h5 class="card-title">43</h5>
-                <p class="card-text">Feb 1 - Apr 1, United States</p>
-                <p class="card-text text-danger">2.6% decrease since last month</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Row 2 -->
+<div class="row my-3">
+    <!-- Card 1 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="traffic-chart1"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="traffic-chart2"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="traffic-chart3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3 -->
 <div class="row">
     <div class="col-12 col-xl-12 mb-4 mb-lg-0">
         <div class="card">
@@ -92,3 +135,36 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    new Chartist.Pie('#traffic-chart1', {
+        series: [0, 1, 0, 0],
+        labels: ['','Weak','', '']
+    }, {
+        donut: true,
+        donutWidth: 52
+    });
+
+    new Chartist.Line('#traffic-chart2', {
+        labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
+        series: [
+            [23000, 25000, 19000, 34000, 56000, 64000]
+        ]
+    }, {
+        low: 0,
+        showArea: true
+    });
+
+    new Chartist.Line('#traffic-chart3', {
+        labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
+        series: [
+            [23000, 25000, 19000, 34000, 56000, 64000]
+        ]
+    }, {
+        low: 0,
+        showArea: true
+    });
+</script>
+{% endblock extra_js %}
+

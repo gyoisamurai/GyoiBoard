@@ -41,6 +41,7 @@ class Target(models.Model):
     y_test = models.CharField(verbose_name='y_test', max_length=255)
     overview = models.CharField(verbose_name='Overview', max_length=255, default='N/A')
     author = models.CharField(verbose_name='Author', max_length=255, blank=False)
+    accuracy = models.FloatField(verbose_name='Accuracy', default=0.0)
     registration_date = models.CharField(verbose_name='Registration', max_length=255, default=False)
     rank = models.CharField(verbose_name='Rank', max_length=10, default='N/A')
     last_scan_date = models.CharField(verbose_name='Last scan date', max_length=255, default='N/A')
@@ -53,16 +54,46 @@ class Target(models.Model):
 
 # Scan Setting of FGSM.
 class ScanSettingFGSM(models.Model):
-    eps = models.FloatField(verbose_name='Epsilon', default=0.05)
-    eps_step = models.FloatField(verbose_name='Epsilon Step', default=0.1)
+    epsilon = models.FloatField(verbose_name='Epsilon', default=0.05)
+    epsilon_step = models.FloatField(verbose_name='Epsilon Step', default=0.1)
     targeted = models.BooleanField(verbose_name='Targeted', default=False)
     batch_size = models.IntegerField(verbose_name='Batch Size', default=32)
+    dataset_num = models.IntegerField(verbose_name='Using dataset\'s number', default=100)
+
+
+# ATD FGSM's setting (external).
+class ExtEvasionFGSM(models.Model):
+    class Meta:
+        db_table = 'EvasionFGSMTBL'
+
+    target_id = models.IntegerField(primary_key=True)
+    scan_id = models.CharField(max_length=36)
+    epsilon = models.FloatField()
+    epsilon_step = models.FloatField()
+    targeted = models.BooleanField()
+    batch_size = models.IntegerField()
+    dataset_num = models.IntegerField()
+    countermeasure = models.CharField(max_length=3000)
 
 
 # Scan Setting of CnW.
 class ScanSettingCnW(models.Model):
     confidence = models.FloatField(verbose_name='Confidence', default=0.0)
     batch_size = models.IntegerField(verbose_name='Batch Size', default=1)
+    dataset_num = models.IntegerField(verbose_name='Using dataset\'s number', default=100)
+
+
+# ATD CnW's setting (external).
+class ExtEvasionCnW(models.Model):
+    class Meta:
+        db_table = 'EvasionCnWTBL'
+
+    target_id = models.IntegerField(primary_key=True)
+    scan_id = models.CharField(max_length=36)
+    confidence = models.FloatField()
+    batch_size = models.IntegerField()
+    dataset_num = models.IntegerField()
+    countermeasure = models.CharField(max_length=3000)
 
 
 # Scan Setting of JSMA.
@@ -70,6 +101,21 @@ class ScanSettingJSMA(models.Model):
     theta = models.FloatField(verbose_name='Theta', default=0.1)
     gamma = models.FloatField(verbose_name='Gamma', default=1.0)
     batch_size = models.IntegerField(verbose_name='Batch Size', default=1)
+    dataset_num = models.IntegerField(verbose_name='Using dataset\'s number', default=100)
+
+
+# ATD JSMA's setting (external).
+class ExtEvasionJSMA(models.Model):
+    class Meta:
+        db_table = 'EvasionJSMATBL'
+
+    target_id = models.IntegerField(primary_key=True)
+    scan_id = models.CharField(max_length=36)
+    theta = models.FloatField()
+    gamma = models.FloatField()
+    batch_size = models.IntegerField()
+    dataset_num = models.IntegerField()
+    countermeasure = models.CharField(max_length=3000)
 
 
 # Scan Result.
@@ -123,41 +169,3 @@ class ExtScanResultEvasion(models.Model):
     attack_method = models.CharField(max_length=255)
     accuracy = models.FloatField()
 
-
-# ATD FGSM's setting (external).
-class ExtEvasionFGSM(models.Model):
-    class Meta:
-        db_table = 'EvasionFGSMTBL'
-
-    target_id = models.IntegerField(primary_key=True)
-    scan_id = models.CharField(max_length=36)
-    epsilon = models.FloatField()
-    epsilon_step = models.FloatField()
-    targeted = models.IntegerField()
-    batch_size = models.IntegerField()
-    countermeasure = models.CharField(max_length=3000)
-
-
-# ATD CnW's setting (external).
-class ExtEvasionCnW(models.Model):
-    class Meta:
-        db_table = 'EvasionCnWTBL'
-
-    target_id = models.IntegerField(primary_key=True)
-    scan_id = models.CharField(max_length=36)
-    confidence = models.FloatField()
-    batch_size = models.IntegerField()
-    countermeasure = models.CharField(max_length=3000)
-
-
-# ATD JSMA's setting (external).
-class ExtEvasionJSMA(models.Model):
-    class Meta:
-        db_table = 'EvasionJSMATBL'
-
-    target_id = models.IntegerField(primary_key=True)
-    scan_id = models.CharField(max_length=36)
-    theta = models.FloatField()
-    gamma = models.FloatField()
-    batch_size = models.IntegerField()
-    countermeasure = models.CharField(max_length=3000)

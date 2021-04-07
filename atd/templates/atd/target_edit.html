@@ -3,25 +3,23 @@
 
 {% block title %}Model Edit{% endblock title %}
 
-{% block breadcrumb_title %}Model Upload{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}Model Edit{% endblock breadcrumb_title %}
 
 {% block body_title %}Model Edit{% endblock body_title %}
 
 {% block body_description %}You can edit model's information.{% endblock body_description %}
 
 {% block content %}
-{% if target_id %}
+<h4 class="mt-4 border-bottom">{{ target_id }}.{{ target.name }}</h4>
+
 <form action="{% url 'atd:target_mod' target_id=target_id %}" method="post">
-    {% else %}
-    <form action="{% url 'atd:target_add' %}" method="post">
-        {% endif %}
-        {% csrf_token %}
-        {% bootstrap_form form layout='horizontal' %}
-        <div class="form-group row">
-            <div class="offset-md-3 col-md-9">
-                <button type="submit" class="btn btn-primary">Update</button>
-            </div>
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+    <div class="form-group row">
+        <div class="offset-md-3 col-md-9">
+            <button type="submit" class="btn btn-primary">Update</button>
         </div>
-    </form>
-    <a href="{% url 'atd:target_list' %}" class="btn btn-secondary">Back</a>
+    </div>
+</form>
+<a href="{% url 'atd:target_list' %}" class="btn btn-secondary">Back</a>
 {% endblock content %}

@@ -5,6 +5,7 @@ from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse
 from django.conf import settings
+from django.contrib import messages
 
 from gyoiboard.tasks import executation
 from atd.models import Target, ScanResult, ExtScanResult, \
@@ -33,21 +34,86 @@ def modelform_upload(request):
             target.registration_date = saved_file.uploaded_at.strftime('%Y-%m-%d %H:%M:%S')
             target.target_path = os.path.dirname(saved_file.file_model.url)
             target.save()
+            messages.success(request, 'Upload new model: {}'.format(target.name))
             return redirect('atd:target_list')
     else:
         form = TargetRegistrationForm()
     return render(request, 'atd/modelform_upload.html', {'form': form})
 
 
-# Top Page.
-def top_page(request):
+# Get Dashboard items.
+def get_dashboard_items():
+    rank_count = {'critical': 0, 'weak': 0, 'normal': 0, 'secure': 0}
+    target_num = {'num': 0, 'latest_date': 'N/A'}
+    scan_num = {'num': 0, 'latest_date': 'N/A'}
+
+    # Get "Target Num" and "Rank Count".
     targets = Target.objects.all().order_by('id')
-    return render(request, 'atd/index.html', {'targets': targets})
+    if len(targets) != 0:
+        target_num['num'] = len(targets)
+        target_num['latest_date'] = targets[0].registration_date
+        for target in targets:
+            if target.status == 'Done':
+                if target.rank == 'Critical':
+                    rank_count['critical'] += 1
+                elif target.rank == 'Weak':
+                    rank_count['weak'] += 1
+                elif target.rank == 'Normal':
+                    rank_count['normal'] += 1
+                elif target.rank == 'Secure':
+                    rank_count['secure'] += 1
+
+    # Get "Scan Num".
+    results = ScanResult.objects.order_by('id')
+    for result in results:
+        ext_result = ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=result.scan_id)
+        if len(ext_result) == 0:
+            continue
+        if ext_result[0].status == 'Done':
+            scan_num['num'] += 1
+            scan_num['latest_date'] = ext_result[0].exec_end_date
+
+    return rank_count, target_num, scan_num
+
+
+# Update target's information.
+def update_target(targets):
+    for target in targets:
+        result = ScanResult.objects.filter(scan_result__exact=target.id).order_by('id').reverse().first()
+        if result is None:
+            continue
+
+        ext_result = ExtScanResult.objects.db_manager('atd').filter(scan_id__exact=result.scan_id)
+        if len(ext_result) == 0:
+            continue
+
+        if ext_result[0].status == 'Done':
+            target.accuracy = ext_result[0].accuracy
+            target.last_scan_date = ext_result[0].exec_end_date
+            target.status = ext_result[0].status
+            target.rank = ext_result[0].rank
+            target.save()
+
+    return targets
+
+
+# Top Page (Dashboard).
+def top_page(request):
+    # Get "Target List".
+    targets = Target.objects.all().order_by('id')
+    targets = update_target(targets)
+
+    rank_count, target_num, scan_num = get_dashboard_items()
+    return render(request, 'atd/index.html', {'rank_count': rank_count,
+                                              'target_num': target_num,
+                                              'scan_num': scan_num,
+                                              'targets': targets})
 
 
 # Target list.
 def target_list(request):
     targets = Target.objects.all().order_by('id')
+    targets = update_target(targets)
     return render(request, 'atd/target_list.html', {'targets': targets})
 
 
@@ -63,11 +129,12 @@ def target_edit(request, target_id=None):
         if form.is_valid():
             target = form.save(commit=False)
             target.save()
+            messages.success(request, 'Update target\'s information: {}.{}'.format(target_id, target.name))
             return redirect('atd:target_list')
     else:
         form = TargetForm(instance=target)
 
-    return render(request, 'atd/target_edit.html', dict(form=form, target_id=target_id))
+    return render(request, 'atd/target_edit.html', dict(target=target, form=form, target_id=target_id))
 
 
 # Get specify record using target id, attack method.
@@ -155,13 +222,25 @@ def scan_setting(request, target_id):
         attack_method = ''
         if request.POST['method'] == 'evasion_fgsm':
             attack_method = utility.transform_attack_method_name(request.POST['method'])
-            setting_form = FGSMSettingForm()
+            result = ExtEvasionFGSM.objects.filter(target_id__exact=target_id)
+            if len(result) == 0:
+                setting_form = FGSMSettingForm()
+            else:
+                setting_form = FGSMSettingForm(instance=result[0])
         elif request.POST['method'] == 'evasion_cnw':
             attack_method = utility.transform_attack_method_name(request.POST['method'])
-            setting_form = CnWSettingForm()
+            result = ExtEvasionCnW.objects.filter(target_id__exact=target_id)
+            if len(result) == 0:
+                setting_form = CnWSettingForm()
+            else:
+                setting_form = CnWSettingForm(instance=result[0])
         elif request.POST['method'] == 'evasion_jsma':
             attack_method = utility.transform_attack_method_name(request.POST['method'])
-            setting_form = JSMASettingForm()
+            result = ExtEvasionJSMA.objects.filter(target_id__exact=target_id)
+            if len(result) == 0:
+                setting_form = JSMASettingForm()
+            else:
+                setting_form = JSMASettingForm(instance=result[0])
         else:
             # TODO: 他の攻撃手法のフォームを用意すること。
             attack_method = 'Fast Gradient Signed Method'
@@ -184,24 +263,30 @@ def update_setting(request, target_id):
         if 'targeted' in params.keys():
             targeted = 1
         fgsm_setting = ExtEvasionFGSM(target_id=target_id,
-                                      epsilon=params['eps'],
-                                      epsilon_step=params['eps_step'],
+                                      epsilon=params['epsilon'],
+                                      epsilon_step=params['epsilon_step'],
                                       targeted=targeted,
-                                      batch_size=params['batch_size'])
+                                      batch_size=params['batch_size'],
+                                      dataset_num=params['dataset_num'])
         fgsm_setting.save()
+        messages.success(request, 'Update scan setting: {}'.format(params['attack_id']))
     # Insert/Update EvasionCnWTBL
     elif params['attack_id'] == 'evasion_cnw':
         cnw_setting = ExtEvasionCnW(target_id=target_id,
                                     confidence=params['confidence'],
-                                    batch_size=params['batch_size'])
+                                    batch_size=params['batch_size'],
+                                    dataset_num=params['dataset_num'])
         cnw_setting.save()
+        messages.success(request, 'Update scan setting: {}'.format(params['attack_id']))
     # Insert/Update EvasionJSMATBL
     elif params['attack_id'] == 'evasion_jsma':
         jsma_setting = ExtEvasionJSMA(target_id=target_id,
                                       theta=params['theta'],
                                       gamma=params['gamma'],
-                                      batch_size=params['batch_size'])
+                                      batch_size=params['batch_size'],
+                                      dataset_num=params['dataset_num'])
         jsma_setting.save()
+        messages.success(request, 'Update scan setting: {}'.format(params['attack_id']))
     else:
         # TODO: 他の攻撃手法の設定更新を追加すること。
         return redirect('atd:target_list')
@@ -217,53 +302,63 @@ def update_setting(request, target_id):
 
 # Build ATD's command.
 def build_atd_command(scan_id, params, target):
-    model_path = '/home/itakaesu/PycharmProjects/GyoiBoard' + target.target_path
+    model_path = '.' + os.path.join(target.target_path, target.name)
+    x_train_path = '.' + os.path.join(target.target_path, target.x_train)
+    y_train_path = '.' + os.path.join(target.target_path, target.y_train)
+    x_test_path = '.' + os.path.join(target.target_path, target.x_test)
+    y_test_path = '.' + os.path.join(target.target_path, target.y_test)
     common = '--target_id {} --scan_id {} --op_type attack --model_name {}'.format(target.id, scan_id, model_path)
-    common_test_data = '--test_data_name X_test.npz --test_label_name y_test.npz --use_x_test_num 100'
+    common_test_data = '--test_data_name {} --test_label_name {}'.format(x_test_path, y_test_path)
 
     # Build attack's parameters.
     # FGSM.
     if params['method'] == 'evasion_fgsm':
-        specify_option = '--attack_type evasion --attack_evasion fgsm'
+        specify_option = ' --attack_type evasion --attack_evasion fgsm'
         fgsm_setting = ExtEvasionFGSM.objects.filter(target_id__exact=target.id)
         if len(fgsm_setting) != 0:
             # Setting of DB.
+            specify_option += ' --use_x_test_num {}'.format(fgsm_setting[0].dataset_num)
             specify_option += ' --fgsm_epsilon {}'.format(fgsm_setting[0].epsilon)
             specify_option += ' --fgsm_eps_step {}'.format(fgsm_setting[0].epsilon_step)
-            if fgsm_setting[0].targeted == 1:
+            if fgsm_setting[0].targeted == True:
                 specify_option += ' --fgsm_targeted'
             specify_option += ' --fgsm_batch_size {}'.format(fgsm_setting[0].batch_size)
         else:
             # Default setting.
             fgsm_setting = ScanSettingFGSM()
-            specify_option += ' --fgsm_epsilon {}'.format(fgsm_setting.eps)
-            specify_option += ' --fgsm_eps_step {}'.format(fgsm_setting.eps_step)
+            specify_option += ' --use_x_test_num {}'.format(fgsm_setting.dataset_num)
+            specify_option += ' --fgsm_epsilon {}'.format(fgsm_setting.epsilon)
+            specify_option += ' --fgsm_eps_step {}'.format(fgsm_setting.epsilon_step)
             specify_option += ' --fgsm_batch_size {}'.format(fgsm_setting.batch_size)
     # CnW.
     elif params['method'] == 'evasion_cnw':
-        specify_option = '--attack_type evasion --attack_evasion cnw'
+        specify_option = ' --attack_type evasion --attack_evasion cnw'
         cnw_setting = ExtEvasionCnW.objects.filter(target_id__exact=target.id)
         if len(cnw_setting) != 0:
             # Setting of DB.
+            specify_option += ' --use_x_test_num {}'.format(cnw_setting[0].dataset_num)
             specify_option += ' --cnw_confidence {}'.format(cnw_setting[0].confidence)
             specify_option += ' --cnw_batch_size {}'.format(cnw_setting[0].batch_size)
         else:
             # Default setting.
             cnw_setting = ScanSettingCnW()
+            specify_option += ' --use_x_test_num {}'.format(cnw_setting.dataset_num)
             specify_option += ' --cnw_confidence {}'.format(cnw_setting.confidence)
             specify_option += ' --cnw_batch_size {}'.format(cnw_setting.batch_size)
     # JSMA.
     elif params['method'] == 'evasion_jsma':
-        specify_option = '--attack_type evasion --attack_evasion jsma'
+        specify_option = '--use_x_test_num 100 --attack_type evasion --attack_evasion jsma'
         jsma_setting = ExtEvasionJSMA.objects.filter(target_id__exact=target.id)
         if len(jsma_setting) != 0:
             # Setting of DB.
+            specify_option += ' --use_x_test_num {}'.format(jsma_setting[0].dataset_num)
             specify_option += ' --jsma_theta {}'.format(jsma_setting[0].theta)
             specify_option += ' --jsma_gamma {}'.format(jsma_setting[0].gamma)
             specify_option += ' --jsma_batch_size {}'.format(jsma_setting[0].batch_size)
         else:
             # Default setting.
             jsma_setting = ScanSettingJSMA()
+            specify_option += ' --use_x_test_num {}'.format(jsma_setting.dataset_num)
             specify_option += ' --jsma_theta {}'.format(jsma_setting.theta)
             specify_option += ' --jsma_gamma {}'.format(jsma_setting.gamma)
             specify_option += ' --jsma_batch_size {}'.format(jsma_setting.batch_size)
@@ -279,20 +374,35 @@ def scan_exec(request, target_id):
     if target_id:
         target = get_object_or_404(Target, pk=target_id)
     else:
+        messages.error(request, 'Target ID is invalid: "{}" ?'.format(target_id))
         return redirect('atd:target_list')
 
-    # Execution.
-    scan_id = utility.get_random_token(36)
-    command_option = build_atd_command(scan_id, request.POST, target)
-    command = 'python3 {}atd.py {}'.format(settings.ATD_DIR, command_option)
-    task = executation.delay('{}'.format(command))
+    # Existing check of model and dataset.
+    if os.path.exists('.' + os.path.join(target.target_path, target.name)) is False:
+        messages.warning(request, 'Target model file is not found: "{}" ?'.format(target.name))
+    elif os.path.exists('.' + os.path.join(target.target_path, target.x_train)) is False:
+        messages.warning(request, 'X_train file is not found: "{}" ?'.format(target.x_train))
+    elif os.path.exists('.' + os.path.join(target.target_path, target.y_train)) is False:
+        messages.warning(request, 'y_train file is not found: "{}" ?'.format(target.y_train))
+    elif os.path.exists('.' + os.path.join(target.target_path, target.x_test)) is False:
+        messages.warning(request, 'X_test file is not found: "{}" ?'.format(target.x_test))
+    elif os.path.exists('.' + os.path.join(target.target_path, target.y_test)) is False:
+        messages.warning(request, 'y_test file is not found: "{}" ?'.format(target.y_test))
+    else:
+        # Execution.
+        scan_id = utility.get_random_token(36)
+        command_option = build_atd_command(scan_id, request.POST, target)
+        command = 'python3 {}atd.py {}'.format(settings.ATD_DIR, command_option)
+        task = executation.delay('{}'.format(command))
 
-    # Update to ScanResult.
-    scan_result = ScanResult()
-    scan_result.scan_result = target
-    scan_result.scan_id = scan_id
-    scan_result.attack_method = request.POST['method']
-    scan_result.save()
+        # Update to ScanResult.
+        scan_result = ScanResult()
+        scan_result.scan_result = target
+        scan_result.scan_id = scan_id
+        scan_result.attack_method = request.POST['method']
+        scan_result.save()
+        messages.success(request, 'Execute {} for "{}"'.format(utility.transform_attack_method_name(request.POST['method']),
+                                                               target.name))
 
     # Get all scan's results.
     target, data_poisoning, model_poisoning, evasion, exfiltration = get_scan_results(target_id)
@@ -411,4 +521,5 @@ def target_fix(request, target_id):
 def target_del(request, target_id):
     target = get_object_or_404(Target, pk=target_id)
     target.delete()
+    messages.success(request, 'Delete target "{}.{}"'.format(target_id, target.name))
     return redirect('atd:target_list')

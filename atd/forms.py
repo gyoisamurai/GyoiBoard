@@ -25,6 +25,7 @@ class TargetForm(forms.ModelForm):
         self.fields['y_train'].widget.attrs['readonly'] = 'readonly'
         self.fields['x_test'].widget.attrs['readonly'] = 'readonly'
         self.fields['y_test'].widget.attrs['readonly'] = 'readonly'
+        self.fields['accuracy'].widget.attrs['readonly'] = 'readonly'
         self.fields['registration_date'].widget.attrs['readonly'] = 'readonly'
         self.fields['rank'].widget.attrs['readonly'] = 'readonly'
         self.fields['last_scan_date'].widget.attrs['readonly'] = 'readonly'
@@ -33,26 +34,26 @@ class TargetForm(forms.ModelForm):
 
     class Meta:
         model = Target
-        fields = ('name', 'x_train', 'y_train', 'x_test', 'y_test', 'overview', 'author', 'registration_date',
-                  'rank', 'last_scan_date', 'status', 'target_path')
+        fields = ('name', 'x_train', 'y_train', 'x_test', 'y_test', 'overview', 'author', 'accuracy',
+                  'registration_date', 'rank', 'last_scan_date', 'status', 'target_path')
 
 
 # FGSM.
 class FGSMSettingForm(forms.ModelForm):
     class Meta:
         model = ScanSettingFGSM
-        fields = ('eps', 'eps_step', 'targeted', 'batch_size',)
+        fields = ('epsilon', 'epsilon_step', 'targeted', 'batch_size', 'dataset_num',)
 
 
 # CnW.
 class CnWSettingForm(forms.ModelForm):
     class Meta:
         model = ScanSettingCnW
-        fields = ('confidence', 'batch_size',)
+        fields = ('confidence', 'batch_size', 'dataset_num',)
 
 
 # JSMA.
 class JSMASettingForm(forms.ModelForm):
     class Meta:
         model = ScanSettingJSMA
-        fields = ('theta', 'gamma', 'batch_size',)
+        fields = ('theta', 'gamma', 'batch_size', 'dataset_num',)
