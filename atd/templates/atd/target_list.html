@@ -31,7 +31,7 @@
           {% for target in targets %}
           <tr>
             <th scope="row">{{ target.id }}</th>
-            <td>{{ target.name }}</td>
+            <td><a href="{% url 'atd:target_reupload' target_id=target.id %}">{{ target.name }}</a></td>
             <td>{{ target.overview }}</td>
             <td>{{ target.author }}</td>
             <td>{{ target.registration_date}}</td>
@@ -40,7 +40,7 @@
             <td>{{ target.status }}</td>
             <td>
               <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-info btn-sm">View</a>
-              <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'atd:target_edit' target_id=target.id %}" class="btn btn-primary btn-sm">Edit</a>
               <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
             </td>
           </tr>

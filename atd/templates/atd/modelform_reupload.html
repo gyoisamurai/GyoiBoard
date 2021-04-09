@@ -1,0 +1,22 @@
+{% extends "atd/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Model Re-Upload{% endblock title %}
+
+{% block breadcrumb_title %}Model Re-Upload{% endblock breadcrumb_title %}
+
+{% block body_title %}Model Re-Upload{% endblock body_title %}
+
+{% block body_description %}You can reupload a new model.{% endblock body_description %}
+
+{% block content %}
+<form action="{% url 'atd:target_reupload' target_id=target.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+        <div class="form-group row">
+            <div class="offset-md-3 col-md-9">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </div>
+</form>
+{% endblock content %}

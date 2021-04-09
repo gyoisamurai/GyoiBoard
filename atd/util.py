@@ -106,3 +106,14 @@ class Utilty:
         else:
             attack_full_name = 'Unknown'
         return attack_full_name
+
+    # Transform rank to integer.
+    def transform_rank_to_number(self, rank):
+        if rank == 'Secure':
+            return 0
+        elif rank == 'Normal':
+            return 1
+        elif rank == 'Weak':
+            return 2
+        else:
+            return 3

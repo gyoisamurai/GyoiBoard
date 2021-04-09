@@ -12,7 +12,7 @@
 {% block content %}
 <h4 class="mt-4 border-bottom">{{ target_id }}.{{ target.name }}</h4>
 
-<form action="{% url 'atd:target_mod' target_id=target_id %}" method="post">
+<form action="{% url 'atd:target_edit' target_id=target_id %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='horizontal' %}
     <div class="form-group row">

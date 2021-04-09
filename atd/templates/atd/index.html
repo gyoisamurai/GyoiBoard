@@ -38,18 +38,31 @@
     <!-- Card 2 -->
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
-            <h5 class="card-header">Target Num</h5>
+            <h5 class="card-header">Weak Point</h5>
             <div class="card-body">
-                <h5 class="card-title">{{ target_num.num }}</h5>
-                <p class="card-text">Latest Registration: {{ target_num.latest_date }}</p>
-                <p class="card-text text-success">18.2% increase since last month</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>DP</th>
+                            <th>MP</th>
+                            <th>EV</th>
+                            <th>EX</th>
+                        </tr>
+                        <tr>
+                            <td>{{ weak_point.data_poisoning }}</td>
+                            <td>{{ weak_point.model_poisoning }}</td>
+                            <td>{{ weak_point.evasion }}</td>
+                            <td>{{ weak_point.exfiltration }}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
     <!-- Card 3 -->
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
-            <h5 class="card-header">Scan Num</h5>
+            <h5 class="card-header">Weakness Changes</h5>
             <div class="card-body">
                 <h5 class="card-title">{{ scan_num.num }}</h5>
                 <p class="card-text">Latest Scan: {{ scan_num.latest_date }}</p>
@@ -65,7 +78,7 @@
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
             <div class="card-body">
-                <div id="traffic-chart1"></div>
+                <div id="rank-chart"></div>
             </div>
         </div>
     </div>
@@ -73,7 +86,7 @@
     <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
         <div class="card">
             <div class="card-body">
-                <div id="traffic-chart2"></div>
+                <div id="weak-chart"></div>
             </div>
         </div>
     </div>
@@ -91,7 +104,7 @@
 <div class="row">
     <div class="col-12 col-xl-12 mb-4 mb-lg-0">
         <div class="card">
-            <h5 class="card-header"><a href="{% url 'atd:target_list' %}">Target List</a></h5>
+            <h5 class="card-header">Target List</h5>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table">
@@ -112,7 +125,7 @@
                         {% for target in targets %}
                         <tr>
                             <th scope="row">{{ target.id }}</th>
-                            <td>{{ target.name }}</td>
+                            <td><a href="{% url 'atd:target_reupload' target_id=target.id %}">{{ target.name }}</a></td>
                             <td>{{ target.overview }}</td>
                             <td>{{ target.author }}</td>
                             <td>{{ target.registration_date}}</td>
@@ -121,7 +134,7 @@
                             <td>{{ target.status }}</td>
                             <td>
                                 <a href="{% url 'atd:scan_detail' target_id=target.id %}" class="btn btn-primary btn-sm">View</a>
-                                <a href="{% url 'atd:target_mod' target_id=target.id %}" class="btn btn-info btn-sm">Edit</a>
+                                <a href="{% url 'atd:target_edit' target_id=target.id %}" class="btn btn-info btn-sm">Edit</a>
                                 <a href="{% url 'atd:target_del' target_id=target.id %}" class="btn btn-danger btn-sm">Delete</a>
                             </td>
                         </tr>
@@ -129,7 +142,7 @@
                         </tbody>
                     </table>
                 </div>
-                <a href="#" class="btn btn-block btn-light">View all</a>
+                <a href="{% url 'atd:target_list' %}" class="btn btn-block btn-light">View all</a>
             </div>
         </div>
     </div>
@@ -138,22 +151,58 @@
 
 {% block extra_js %}
 <script>
-    new Chartist.Pie('#traffic-chart1', {
-        series: [0, 1, 0, 0],
-        labels: ['','Weak','', '']
+    /* Rank Count */
+    let label_critical = 'Critical';
+    let label_weak = 'Weak';
+    let label_normal = 'Normal';
+    let label_secure = 'Secure';
+    if ({{ rank_count.critical }} === 0){
+        label_critical = ''
+    }
+    if ({{ rank_count.weak }} === 0){
+        label_weak = ''
+    }
+    if ({{ rank_count.normal }} === 0){
+        label_normal = ''
+    }
+    if ({{ rank_count.secure }} === 0){
+        label_secure = ''
+    }
+    new Chartist.Pie('#rank-chart', {
+        series: [{{ rank_count.critical }}, {{ rank_count.weak }}, {{ rank_count.normal }}, {{ rank_count.secure }}],
+        labels: [label_critical, label_weak, label_normal, label_secure]
     }, {
         donut: true,
-        donutWidth: 52
+        donutWidth: 40,
+        donutSolid: true,
+        startAngle: 270
     });
 
-    new Chartist.Line('#traffic-chart2', {
-        labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
-        series: [
-            [23000, 25000, 19000, 34000, 56000, 64000]
-        ]
+    /* Rank Count */
+    let label_dp = 'Data Poisoning';
+    let label_mp = 'Model Poisoning';
+    let label_evasion = 'Evasion';
+    let label_exfiltration = 'Exfiltration';
+    if ({{ weak_point.data_poisoning }} === 0){
+        label_dp = ''
+    }
+    if ({{ weak_point.model_poisoning }} === 0){
+        label_mp = ''
+    }
+    if ({{ weak_point.evasion }} === 0){
+        label_evasion = ''
+    }
+    if ({{ weak_point.exfiltration }} === 0){
+        label_exfiltration = ''
+    }
+    new Chartist.Pie('#weak-chart', {
+        series: [{{ weak_point.data_poisoning }}, {{ weak_point.model_poisoning }}, {{ weak_point.evasion }}, {{ weak_point.exfiltration }}],
+        labels: [label_dp, label_mp, label_evasion, label_exfiltration]
     }, {
-        low: 0,
-        showArea: true
+        donut: true,
+        donutWidth: 40,
+        donutSolid: true,
+        startAngle: 270
     });
 
     new Chartist.Line('#traffic-chart3', {
@@ -163,7 +212,7 @@
         ]
     }, {
         low: 0,
-        showArea: true
+        showArea: false
     });
 </script>
 {% endblock extra_js %}

@@ -14,6 +14,17 @@ class TargetRegistrationForm(forms.ModelForm):
         fields = ('file_model', 'file_x_train', 'file_y_train', 'file_x_test', 'file_y_test', 'overview', 'author')
 
 
+class TargetUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(TargetUpdateForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = "form-control"
+
+    class Meta:
+        model = FileUpload
+        fields = ('file_model',)
+
+
 class TargetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

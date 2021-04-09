@@ -10,7 +10,8 @@ from django.contrib import messages
 from gyoiboard.tasks import executation
 from atd.models import Target, ScanResult, ExtScanResult, \
     ExtScanResultEvasion, ScanSettingFGSM, ScanSettingCnW, ScanSettingJSMA, ExtEvasionFGSM, ExtEvasionCnW, ExtEvasionJSMA
-from atd.forms import TargetRegistrationForm, TargetForm, FGSMSettingForm, CnWSettingForm, JSMASettingForm
+from atd.forms import TargetRegistrationForm, TargetUpdateForm, TargetForm, \
+    FGSMSettingForm, CnWSettingForm, JSMASettingForm
 from atd.util import Utilty
 
 
@@ -38,22 +39,50 @@ def modelform_upload(request):
             return redirect('atd:target_list')
     else:
         form = TargetRegistrationForm()
-    return render(request, 'atd/modelform_upload.html', {'form': form})
+    return render(request, 'atd/modelform_upload.html', {'form': form, 'target': target})
+
+
+# Upload files.
+def modelform_reupload(request, target_id=None):
+    if target_id:
+        target = get_object_or_404(Target, pk=target_id)
+    else:
+        return redirect('atd:target_list')
+
+    if request.method == 'POST':
+        upload_file = TargetUpdateForm(request.POST, request.FILES)
+        if upload_file.is_valid():
+            # Save file.
+            saved_file = upload_file.save()
+
+            # Move new model and remove old model.
+            shutil.move(saved_file.file_model.path, '.' + target.target_path)
+            shutil.rmtree(os.path.dirname(saved_file.file_model.path))
+            os.remove(os.path.join('.' + target.target_path, target.name))
+
+            # Update Target model.
+            target.name = request.FILES['file_model']
+            target.registration_date = saved_file.uploaded_at.strftime('%Y-%m-%d %H:%M:%S')
+            target.save()
+            messages.success(request, 'Re-Upload new model: {}'.format(target.name))
+            return redirect('atd:target_list')
+    else:
+        form = TargetUpdateForm()
+    return render(request, 'atd/modelform_reupload.html', {'form': form, 'target': target})
 
 
 # Get Dashboard items.
 def get_dashboard_items():
     rank_count = {'critical': 0, 'weak': 0, 'normal': 0, 'secure': 0}
-    target_num = {'num': 0, 'latest_date': 'N/A'}
+    weak_point = {'data_poisoning': 0, 'model_poisoning': 0, 'evasion': 0, 'exfiltration': 0}
     scan_num = {'num': 0, 'latest_date': 'N/A'}
 
     # Get "Target Num" and "Rank Count".
     targets = Target.objects.all().order_by('id')
     if len(targets) != 0:
-        target_num['num'] = len(targets)
-        target_num['latest_date'] = targets[0].registration_date
         for target in targets:
             if target.status == 'Done':
+                # Update "Rank Count".
                 if target.rank == 'Critical':
                     rank_count['critical'] += 1
                 elif target.rank == 'Weak':
@@ -62,6 +91,13 @@ def get_dashboard_items():
                     rank_count['normal'] += 1
                 elif target.rank == 'Secure':
                     rank_count['secure'] += 1
+
+                # Update "Weak Point".
+                _, dp_worst_count, mp_worst_count, ev_worst_count, ex_worst_count = get_worst_rank(target.id)
+                weak_point['data_poisoning'] += dp_worst_count
+                weak_point['model_poisoning'] += mp_worst_count
+                weak_point['evasion'] += ev_worst_count
+                weak_point['exfiltration'] += ex_worst_count
 
     # Get "Scan Num".
     results = ScanResult.objects.order_by('id')
@@ -73,7 +109,50 @@ def get_dashboard_items():
             scan_num['num'] += 1
             scan_num['latest_date'] = ext_result[0].exec_end_date
 
-    return rank_count, target_num, scan_num
+    return rank_count, weak_point, scan_num
+
+
+# Count worst rank.
+def count_worst_count(target_id, worst_rank, method_list):
+    utility = Utilty()
+    worst_count = 0
+    for attack_method in method_list:
+        result = ExtScanResult.objects.db_manager('atd').filter(target_id__exact=target_id,
+                                                                status__exact='Done',
+                                                                attack_method__exact=attack_method).reverse().first()
+        if result is None:
+            continue
+
+        if utility.transform_rank_to_number(result.rank) > worst_rank:
+            worst_rank = utility.transform_rank_to_number(result.rank)
+        if utility.transform_rank_to_number(result.rank) >= utility.transform_rank_to_number('Weak'):
+            worst_count += 1
+    return worst_rank, worst_count
+
+
+# Get worst rank per target.
+def get_worst_rank(target_id):
+    rank_list = ['Secure', 'Normal', 'Weak', 'Critical']
+    worst_rank = 0
+
+    # Data Poisoning.
+    worst_rank, dp_worst_count = count_worst_count(target_id, worst_rank, ['feature_collision',
+                                                                           'convex_polytope',
+                                                                           'bullseye_polytope'])
+
+    # Model Poisoning.
+    worst_rank, mp_worst_count = count_worst_count(target_id, worst_rank, ['node_injection',
+                                                                           'layer_injection'])
+
+    # Evasion.
+    worst_rank, ev_worst_count = count_worst_count(target_id, worst_rank, ['fgsm', 'cnw', 'jsma'])
+
+    # Evasion.
+    worst_rank, ex_worst_count = count_worst_count(target_id, worst_rank, ['membership_inference',
+                                                                           'label_only',
+                                                                           'inversion'])
+
+    return rank_list[worst_rank], dp_worst_count, mp_worst_count, ev_worst_count, ex_worst_count
 
 
 # Update target's information.
@@ -87,11 +166,14 @@ def update_target(targets):
         if len(ext_result) == 0:
             continue
 
+        # Get worst rank for target.
+        worst_rank, _, _, _, _ = get_worst_rank(target.id)
+        target.rank = worst_rank
+
         if ext_result[0].status == 'Done':
             target.accuracy = ext_result[0].accuracy
             target.last_scan_date = ext_result[0].exec_end_date
             target.status = ext_result[0].status
-            target.rank = ext_result[0].rank
             target.save()
 
     return targets
@@ -103,9 +185,9 @@ def top_page(request):
     targets = Target.objects.all().order_by('id')
     targets = update_target(targets)
 
-    rank_count, target_num, scan_num = get_dashboard_items()
+    rank_count, weak_point, scan_num = get_dashboard_items()
     return render(request, 'atd/index.html', {'rank_count': rank_count,
-                                              'target_num': target_num,
+                                              'weak_point': weak_point,
                                               'scan_num': scan_num,
                                               'targets': targets})
 
@@ -125,7 +207,7 @@ def target_edit(request, target_id=None):
         target = Target()
 
     if request.method == 'POST':
-        form = TargetForm(request.POST, instance=target)
+        form = TargetForm(request.POST, request.FILES, instance=target)
         if form.is_valid():
             target = form.save(commit=False)
             target.save()
