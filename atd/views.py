@@ -1,6 +1,5 @@
 import os
 import shutil
-from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import FileResponse
@@ -56,9 +55,19 @@ def modelform_reupload(request, target_id=None):
             saved_file = upload_file.save()
 
             # Move new model and remove old model.
-            shutil.move(saved_file.file_model.path, '.' + target.target_path)
-            shutil.rmtree(os.path.dirname(saved_file.file_model.path))
-            os.remove(os.path.join('.' + target.target_path, target.name))
+            try:
+                # Move new file to target directory.
+                print(saved_file.file_model.path + '\n' + '.' + target.target_path)
+                shutil.move(saved_file.file_model.path, '.' + target.target_path)
+                os.remove(os.path.join('.' + target.target_path, target.name))
+            except FileExistsError:
+                # Overwrite.
+                shutil.move(saved_file.file_model.path, '.' + os.path.join(target.target_path, target.name))
+            except Exception as e:
+                # Overwrite.
+                shutil.move(saved_file.file_model.path, '.' + os.path.join(target.target_path, target.name))
+            finally:
+                shutil.rmtree(os.path.dirname(saved_file.file_model.path))
 
             # Update Target model.
             target.name = request.FILES['file_model']

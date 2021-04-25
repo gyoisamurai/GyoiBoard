@@ -1,21 +1,8 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import sys
 import string
 import random
-import re
-import urllib
-import urllib3
-import cchardet
-import socket
-import ipaddress
-import configparser
-import ssl
-from urllib3 import util
-from urllib.parse import urlencode
-from datetime import datetime
-from logging import getLogger, FileHandler, Formatter
 
 # Printing colors.
 OK_BLUE = '\033[94m'      # [*]
