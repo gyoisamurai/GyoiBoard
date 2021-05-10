@@ -1,0 +1,22 @@
+{% extends "gyoithon/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Subdomain Registration{% endblock title %}
+
+{% block breadcrumb_title %}Subdomain Registration{% endblock breadcrumb_title %}
+
+{% block body_title %}Subdomain Registration{% endblock body_title %}
+
+{% block body_description %}You can register a subdomain for "{{ domain.name }}".{% endblock body_description %}
+
+{% block content %}
+<form action="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+        <div class="form-group row">
+            <div class="offset-md-3 col-md-9">
+                <button type="submit" class="btn btn-primary">Registration</button>
+            </div>
+        </div>
+</form>
+{% endblock content %}

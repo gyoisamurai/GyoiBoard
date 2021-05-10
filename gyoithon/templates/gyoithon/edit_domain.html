@@ -1,0 +1,25 @@
+{% extends "gyoithon/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Domain Edit{% endblock title %}
+
+{% block breadcrumb_title %}Domain Edit{% endblock breadcrumb_title %}
+
+{% block body_title %}Domain Edit{% endblock body_title %}
+
+{% block body_description %}You can edit domain's information.{% endblock body_description %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">{{ domain.id }}.{{ domain.name }}</h4>
+
+<form action="{% url 'gyoithon:edit_domain' organization_id=organization_id domain_id=domain.id%}" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout='horizontal' %}
+    <div class="form-group row">
+        <div class="offset-md-3 col-md-9">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </div>
+</form>
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization_id %}" class="btn btn-secondary">Back</a>
+{% endblock content %}

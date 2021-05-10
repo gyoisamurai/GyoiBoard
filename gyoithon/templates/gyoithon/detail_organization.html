@@ -1,0 +1,114 @@
+{% extends "gyoithon/base.html" %}
+
+{% block title %}Organization Detail{% endblock title %}
+
+{% block breadcrumb_title %}{{ organization.name }}{% endblock breadcrumb_title %}
+
+{% block body_title %}{{ organization.name }}{% endblock body_title %}
+
+{% block body_description %}This is "{{ organization.name }}" detail.{% endblock body_description %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">Organization Information</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>ID</th>
+            <td>{{ organization.id }}</td>
+          </tr>
+          <tr>
+            <th>Name</th>
+            <td>{{ organization.name }}</td>
+          </tr>
+          <tr>
+            <th>Overview</th>
+            <td>{{ organization.overview }}</td>
+          </tr>
+          <tr>
+            <th>Domains</th>
+            <td>{{ organization.domain }}</td>
+          </tr>
+          <tr>
+            <th>Subdomains</th>
+            <td>{{ organization.subdomain }}</td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>{{ organization.status }}</td>
+          </tr>
+          <tr>
+            <th>Registration Date</th>
+            <td>{{ organization.registration_date }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Domain List</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>No</th>
+            <th>Name</th>
+            <th>Registrant Organization</th>
+            <th>Registrant Email</th>
+            <th>Subdomains</th>
+            <th>Status</th>
+            <th>Registration Date</th>
+            <th>Operation</th>
+          </tr>
+          </thead>
+          {% for domain in domains %}
+          <tr>
+            <th scope="row">{{ domain.id }}</th>
+            <td>{{ domain.name }}</td>
+            <td>{{ domain.registrant_organization }}</td>
+            <td>{{ domain.registrant_email }}</td>
+            <td>{{ domain.subdomain }}</td>
+            <td>{{ domain.status }}</td>
+            <td>{{ domain.registration_date}}</td>
+            <td>
+              <a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info btn-sm">View</a>
+              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:delete_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Add domains</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>GyoiThon searches domains of "{{ organization.name }}".</th>
+            <td><a href="{% url 'gyoithon:list_organization' %}" class="btn btn-danger">Search</a></td>
+          </tr>
+          <tr>
+            <th>You add a domain manually.</th>
+            <td><a href="{% url 'gyoithon:registration_domain' organization_id=organization.id %}" class="btn btn-info">Manual</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+{% endblock content %}

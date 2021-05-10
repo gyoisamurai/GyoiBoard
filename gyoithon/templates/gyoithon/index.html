@@ -1,0 +1,217 @@
+{% extends "gyoithon/base.html" %}
+
+{% block title %}GyoiThon Dashboard{% endblock title %}
+
+{% block breadcrumb_title %}Overview{% endblock breadcrumb_title %}
+
+{% block body_title %}Dashboard{% endblock body_title %}
+
+{% block body_description %}This is the dashboard of GyoiThon{% endblock body_description %}
+
+{% block content %}
+<!-- Row 1 -->
+<div class="row my-3">
+    <!-- Card 1 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Rank Count</h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>Critical</th>
+                            <th>Weak</th>
+                            <th>Normal</th>
+                            <th>Secure</th>
+                        </tr>
+                        <tr>
+                            <td>{{ rank_count.critical }}</td>
+                            <td>{{ rank_count.weak }}</td>
+                            <td>{{ rank_count.normal }}</td>
+                            <td>{{ rank_count.secure }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Weak Point</h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>DP</th>
+                            <th>MP</th>
+                            <th>EV</th>
+                            <th>EX</th>
+                        </tr>
+                        <tr>
+                            <td>{{ weak_point.data_poisoning }}</td>
+                            <td>{{ weak_point.model_poisoning }}</td>
+                            <td>{{ weak_point.evasion }}</td>
+                            <td>{{ weak_point.exfiltration }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Weakness Changes</h5>
+            <div class="card-body">
+                <h5 class="card-title">{{ scan_num.num }}</h5>
+                <p class="card-text">Latest Scan: {{ scan_num.latest_date }}</p>
+                <p class="card-text text-success">4.6% increase since last month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2 -->
+<div class="row my-3">
+    <!-- Card 1 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="rank-chart"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="weak-chart"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+        <div class="card">
+            <div class="card-body">
+                <div id="traffic-chart3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3 -->
+<div class="row">
+    <div class="col-12 col-xl-12 mb-4 mb-lg-0">
+        <div class="card">
+            <h5 class="card-header">Organization List</h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Organization</th>
+                            <th scope="col">Overview</th>
+                            <th scope="col">Domains</th>
+                            <th scope="col">Subdomains</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Registration date</th>
+                            <th scope="col">Operation</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for organization in organizations %}
+                        <tr>
+                            <th scope="row">{{ organization.id }}</th>
+                            <td>{{ organization.name }}</td>
+                            <td>{{ organization.overview }}</td>
+                            <td>{{ organization.domain }}</td>
+                            <td>{{ organization.subdomain }}</td>
+                            <td>{{ organization.status }}</td>
+                            <td>{{ organization.registration_date }}</td>
+                            <td>
+                                <a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{% url 'gyoithon:edit_organization' organization_id=organization.id %}" class="btn btn-info btn-sm">Edit</a>
+                                <a href="{% url 'gyoithon:delete_organization' organization_id=organization.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'gyoithon:list_organization' %}" class="btn btn-block btn-light">View all</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    /* Rank Count */
+    let label_critical = 'Critical';
+    let label_weak = 'Weak';
+    let label_normal = 'Normal';
+    let label_secure = 'Secure';
+    if ({{ rank_count.critical }} === 0){
+        label_critical = ''
+    }
+    if ({{ rank_count.weak }} === 0){
+        label_weak = ''
+    }
+    if ({{ rank_count.normal }} === 0){
+        label_normal = ''
+    }
+    if ({{ rank_count.secure }} === 0){
+        label_secure = ''
+    }
+    new Chartist.Pie('#rank-chart', {
+        series: [{{ rank_count.critical }}, {{ rank_count.weak }}, {{ rank_count.normal }}, {{ rank_count.secure }}],
+        labels: [label_critical, label_weak, label_normal, label_secure]
+    }, {
+        donut: true,
+        donutWidth: 40,
+        donutSolid: true,
+        startAngle: 270
+    });
+
+    /* Rank Count */
+    let label_dp = 'Data Poisoning';
+    let label_mp = 'Model Poisoning';
+    let label_evasion = 'Evasion';
+    let label_exfiltration = 'Exfiltration';
+    if ({{ weak_point.data_poisoning }} === 0){
+        label_dp = ''
+    }
+    if ({{ weak_point.model_poisoning }} === 0){
+        label_mp = ''
+    }
+    if ({{ weak_point.evasion }} === 0){
+        label_evasion = ''
+    }
+    if ({{ weak_point.exfiltration }} === 0){
+        label_exfiltration = ''
+    }
+    new Chartist.Pie('#weak-chart', {
+        series: [{{ weak_point.data_poisoning }}, {{ weak_point.model_poisoning }}, {{ weak_point.evasion }}, {{ weak_point.exfiltration }}],
+        labels: [label_dp, label_mp, label_evasion, label_exfiltration]
+    }, {
+        donut: true,
+        donutWidth: 40,
+        donutSolid: true,
+        startAngle: 270
+    });
+
+    new Chartist.Line('#traffic-chart3', {
+        labels: ['January', 'Februrary', 'March', 'April', 'May', 'June'],
+        series: [
+            [23000, 25000, 19000, 34000, 56000, 64000]
+        ]
+    }, {
+        low: 0,
+        showArea: false
+    });
+</script>
+{% endblock extra_js %}
+

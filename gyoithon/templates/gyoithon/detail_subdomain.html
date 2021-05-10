@@ -1,0 +1,133 @@
+{% extends "gyoithon/base.html" %}
+
+{% block title %}Subdomain Detail{% endblock title %}
+
+{% block breadcrumb_title %}{{ organization.name }} / {{ domain.name }} / {{ subdomain.name }}{% endblock breadcrumb_title %}
+
+{% block body_title %}{{ subdomain.name }}{% endblock body_title %}
+
+{% block body_description %}This is "{{ subdomain.name }}" detail.{% endblock body_description %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">Subdomain Information</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>Organization Name</th>
+            <td>{{ organization.name }}</td>
+          </tr>
+          <tr>
+            <th>Domain Name</th>
+            <td>{{ domain.name }}</td>
+          </tr>
+          <tr>
+            <th>Subdomain ID</th>
+            <td>{{ subdomain.id }}</td>
+          </tr>
+          <tr>
+            <th>Subdomain Name</th>
+            <td>{{ subdomain.name }}</td>
+          </tr>
+          <tr>
+            <th>IP Address</th>
+            <td>{{ subdomain.ip_address }}</td>
+          </tr>
+          <tr>
+            <th>HTTP: Accessible</th>
+            <td>{{ subdomain.http_accessible }}</td>
+          </tr>
+          <tr>
+            <th>HTTP: Location</th>
+            <td>{{ subdomain.http_location }}</td>
+          </tr>
+          <tr>
+            <th>HTTP: Page Title</th>
+            <td>{{ subdomain.http_page_title }}</td>
+          </tr>
+          <tr>
+            <th>HTTP: Screenshot URL</th>
+            <td>{{ subdomain.http_screenshot_url }}</td>
+          </tr>
+          <tr>
+            <th>HTTP: Screenshot Path</th>
+            <td>{{ subdomain.http_screenshot_path }}</td>
+          </tr>
+          <tr>
+            <th>HTTPS: Accessible</th>
+            <td>{{ subdomain.https_accessible }}</td>
+          </tr>
+          <tr>
+            <th>HTTPS: Location</th>
+            <td>{{ subdomain.https_location }}</td>
+          </tr>
+          <tr>
+            <th>HTTPS: Page Title</th>
+            <td>{{ subdomain.https_page_title }}</td>
+          </tr>
+          <tr>
+            <th>HTTPS: Screenshot URL</th>
+            <td>{{ subdomain.https_screenshot_url }}</td>
+          </tr>
+          <tr>
+            <th>HTTPS: Screenshot Path</th>
+            <td>{{ subdomain.https_screenshot_path }}</td>
+          </tr>
+          <tr>
+            <th>DNS: A Record</th>
+            <td>{{ subdomain.dns_a_record }}</td>
+          </tr>
+          <tr>
+            <th>DNS: CNAME Record</th>
+            <td>{{ subdomain.dns_cname_record }}</td>
+          </tr>
+          <tr>
+            <th>DNS: NS Record</th>
+            <td>{{ subdomain.dns_ns_record }}</td>
+          </tr>
+          <tr>
+            <th>DNS: MX Record</th>
+            <td>{{ subdomain.dns_mx_record }}</td>
+          </tr>
+          <tr>
+            <th>DNS: SOA Record</th>
+            <td>{{ subdomain.dns_soa_record }}</td>
+          </tr>
+          <tr>
+            <th>DNS: TXT Record</th>
+            <td>{{ subdomain.dns_txt_record }}</td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>{{ subdomain.status }}</td>
+          </tr>
+          <tr>
+            <th>Registration Date</th>
+            <td>{{ subdomain.registration_date }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Vulnerability Assessment</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>GyoiThon executes vulnerability assessment to "{{ subdomain.name }}".</th>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Run</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+{% endblock content %}

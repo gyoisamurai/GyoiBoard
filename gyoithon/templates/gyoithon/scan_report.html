@@ -1,0 +1,605 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATD Scan report</title>
+    <link href="https://fonts.googleapis.com/css?family=Bitter:400,700" rel="stylesheet">
+    <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #cccccc;
+          color: #333333;
+          font-size: 15px;
+          line-height: 2;
+        }
+
+        p, h1, h2, h3, h4, h5, h6 {
+          margin-top: 0;
+        }
+
+        img {
+          vertical-align: bottom;
+        }
+
+        ul {
+          margin: 0;
+          padding: 0;
+        }
+
+        a {
+          color: #3583aa;
+          text-decoration: none;
+        }
+
+        a:visited {
+          color: #788d98;
+        }
+
+        a:hover {
+          text-decoration: underline;
+        }
+
+        header {
+          width: 960px;
+          height: 100px;
+          margin: 0 auto;
+        }
+
+        .logo {
+          float: left;
+          margin-top: 50px;
+        }
+
+        .global-nav {
+          float: right;
+          margin-top: 60px;
+        }
+
+        .global-nav li {
+          float: left;
+          margin: 0 30px;
+          font-size: 20px;
+          list-style: none;
+          font-family: 'Bitter', serif;
+        }
+
+        .global-nav li a {
+          color: #ffffff;
+        }
+
+        .global-nav li a:hover {
+          border-bottom: 2px solid: #ffffff;
+          padding-bottom: 3px;
+          text-decoration: none;
+        }
+
+        #wrap {
+          clear: both;
+          background-color: #ffffff;
+          margin-top: 100px;
+          padding: 40px 0;
+        }
+
+        .content {
+          width: 960px;
+          margin: 0 auto;
+        }
+
+        footer {
+          text-align: center;
+          color: #ffffff;
+          padding: 20px 0;
+          background-color: #767671;
+        }
+
+        footer small {
+          font-size: 12px;
+        }
+
+        #about {
+          background-image: url({% static 'atd/img/background.jpg' %});
+          background-repeat: no-repeat;
+          background-position: center top;
+          background-attachment: fixed;
+          background-size: 100% auto;
+        }
+
+        .main-center {
+          width: 940px;
+          margin: 0 auto;
+        }
+
+        h1 {
+          font-family: 'Bitter', serif;
+          font-size: 36px;
+          border-bottom: 1px solid #cccccc;
+        }
+
+        h2 {
+          font-family: 'Bitter', serif;
+          font-size: 24px;
+        }
+
+        h3 {
+          font-family: 'Bitter', serif;
+          font-size: 18px;
+        }
+
+        h4 {
+          font-family: 'Bitter', serif;
+          font-size: 16px;
+        }
+
+        .h2_icon:before {
+          content: "";
+          padding-right: 10px;
+          border-left: 7px solid #9cb4a4;
+        }
+
+        .h3_icon:before {
+          content: "";
+          padding-right: 10px;
+          border-left: 7px solid #696969;
+        }
+
+        #about .executive_summary {
+          width: 940px;
+        }
+
+        #about .executive_summary span {
+          font-weight: bold;
+        }
+
+        #about .clearfix:after {
+          content: "";
+          display: block;
+          clear: both;
+        }
+
+        #about .table_target_info th {
+          width: 940px;
+          background-color: #f0f0f0;
+          padding: 12px 0;
+          border: 1px solid #cccccc;
+        }
+
+        #about .table_target_info td {
+          width: 940px;
+          border: 1px solid #cccccc;
+          text-align: left;
+          padding: 0 0 0 10px;
+        }
+
+        #about .table_target_info tr th:nth-child(1) {
+          width: 200px;
+          text-align: center;
+          vertical-align: center;
+        }
+
+        #about .table_summary th {
+          width: 940px;
+          background-color: #f0f0f0;
+          padding: 12px;
+          text-align: center;
+          border: 1px solid #cccccc;
+        }
+
+        #about .table_summary td {
+          width: 940px;
+          border: 1px solid #cccccc;
+        }
+
+        #about .table_summary tr td:nth-child(1) {
+          width: 50px;
+          text-align: center;
+          vertical-align: center;
+        }
+
+        #about .table_summary tr td:nth-child(2) {
+          width: 100px;
+          text-align: center;
+          vertical-align: center;
+        }
+
+        #about .table_summary tr td:nth-child(3) {
+          width: 100px;
+          text-align: center;
+          padding: 12px;
+          vertical-align: center;
+        }
+
+        #about .table_summary tr td:nth-child(4) {
+          width: 500px;
+          text-align: left;
+          padding: 12px;
+          vertical-align: center;
+        }
+
+        table {
+          border-spacing: 0;
+          border-collapse: collapse;
+          margin: 0 0 20px 0;
+          float: left;
+        }
+
+        section {
+          margin-bottom: 35px;
+        }
+
+        section .target_information {
+          text-align: left;
+          padding: 0 0 0 10px;
+        }
+
+        section .dataset {
+          text-align: left;
+          padding: 0 0 0 10px;
+        }
+
+        section .summary {
+          text-align: left;
+          padding: 0 0 0 10px;
+        }
+
+        section .vuln_1st_category {
+          text-align: left;
+          padding: 0 0 0 10px;
+        }
+
+        section .vuln_1st_category ul, ol {
+          padding: 0;
+          position: relative;
+          margin: 0 0 30px;
+        }
+
+        section .vuln_1st_category ul li, ol li {
+          color: #e366a;
+          border-left: solid 10px #cccccc;
+          background: #f5f5f5;
+          margin-bottom: 3px;
+          line-height: 1.5;
+          padding: 0.5em;
+          list-style-type: none!important;
+        }
+
+        section .vuln_2nd_category {
+          text-align: left;
+          padding: 0 0 0 20px;
+        }
+
+        #about .benign_list li {
+          float: left;
+          list-style: none;
+          margin: 0 20px 15px 0;
+        }
+
+        #about .aes_list li {
+          float: left;
+          list-style: none;
+          margin: 0 20px 15px 0;
+        }
+    </style>
+</head>
+
+<body id="about">
+<header>
+    <div class="logo">
+        <img src="{% static 'atd/img/logo-white.png' %}" width=250 alt="Adversarial Threat Detector's logo.">
+    </div>
+    <nav>
+        <ul class="global-nav">
+            <li><a href="#executive_summary">Executive Summary</a></li>
+            <li><a href="#scanned_result">Scanned result</a></li>
+            <li><a href="#vulnerability_detail">Vulnerability detail</a></li>
+        </ul>
+    </nav>
+</header>
+<div id="wrap">
+    <div class="content">
+        <div class="main-center">
+            <h1>ATD Scan Report</h1>
+            <p>Vulnerability Report created by ATD (Adversarial Threat Detector).</p>
+            <section id="executive_summary" class="executive_summary clearfix">
+                <div class="summary-txt">
+                    <h2 class="h2_icon">Executive Summary</h2>
+                    <p><span><font color="red">{{ target.rank }}</font></span><br><b>{{ target.summary }}</b></p>
+                </div>
+            </section>
+
+            <section id="scanned_result" class="scanned_result">
+                <h2 class="h2_icon">Scanned result</h2>
+
+                <section class="target_information">
+                    <h3 class="h3_icon">Target Information</h3>
+                    <p>Basic information about the target model.</p>
+                    <table class="table_target_info">
+                        <tr>
+                            <th>Model path</th>
+                            <td>{{ target.model_path }}</td>
+                        </tr>
+                        <tr>
+                            <th>Dataset</th>
+                            <td>{{ target.dataset_path }}</td>
+                        </tr>
+                        <tr>
+                            <th>Dataset num</th>
+                            <td>{{ target.dataset_num }}</td>
+                        </tr>
+                        <tr>
+                            <th>Accuracy on benign</th>
+                            <td>{{ target.accuracy }}%</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section class="dataset">
+                    <h3 class="h3_icon">Dataset samples</h3>
+                    <p>Samples of Dataset.</p>
+                    <ul class="clearfix benign_list">
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_1.jpg" alt="Benign sample #1."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_2.jpg" alt="Benign sample #2."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_3.jpg" alt="Benign sample #3."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_4.jpg" alt="Benign sample #4."></li>
+                        <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/benign_5.jpg" alt="Benign sample #5."></li>
+                    </ul>
+                </section>
+
+                <section class="summary">
+                    <h3 class="h3_icon">Summary</h3>
+                    <p>Scan result's list.</p>
+                    <table class="table_summary">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Attack Type</th>
+                            <th>Consequence</th>
+                            <th>Summary</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Data Poisoning</td>
+                            {% if data_poisoning.exist %}
+                            <td>{{ data_poisoning.consequence }}</td>
+                            <td>{{ data_poisoning.summary }}</td>
+                            {% else %}
+                            <td>N/A</td>
+                            <td>Not scan.</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Model Poisoning</td>
+                            {% if model_poisoning.exist %}
+                            <td>{{ model_poisoning.consequence }}</td>
+                            <td>{{ model_poisoning.summary }}</td>
+                            {% else %}
+                            <td>N/A</td>
+                            <td>Not scan.</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Evasion</td>
+                            {% if evasion.exist %}
+                            <td>{{ evasion.consequence }}</td>
+                            <td>{{ evasion.summary }}</td>
+                            {% else %}
+                            <td>N/A</td>
+                            <td>Not scan.</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Exfiltration</td>
+                            {% if exfiltration.exist %}
+                            <td>{{ exfiltration.consequence }}</td>
+                            <td>{{ exfiltration.summary }}</td>
+                            {% else %}
+                            <td>N/A</td>
+                            <td>Not scan.</td>
+                            {% endif %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </section>
+
+            <!-- 脆弱性の詳細情報 -->
+            <section id="vulnerability_detail" class="vulnerability_detail">
+                <h2 class="h2_icon">Vulnerability detail</h2>
+                <p><span>This is the detail information for developer.</span><br>Please take countermeasures based on the following vulnerability information.</p>
+
+                <section class="vuln_1st_category">
+                    {% if data_poisoning.exist %}
+                    <!-- データ汚染攻撃の詳細情報 -->
+                    <h3 class="h3_icon">Data Poisoning</h3>
+                    <p>Data Poisoning attack is an attack that embeds a "backdoor" into the target classifier.</p>
+                    <p><b>The backdoor</b> causes the input data known only to the adversary (Trigger) to misclassify it into the class intended by the adversary. The adversary injects the poison data into the target classifier's train data. If the target classifier trains on the poisoned train data, then the decision boundary of the target classifier is distorted by the poison data.</p>
+                    <section class="vuln_2nd_category">
+                        {% if data_poisoning.fc.exist %}
+                        <h4>Feature Collision Attack</h4>
+                            <p>Feature Collision Attack is a Perfect-knowledge attack that injects poison data that features approximate the Trigger into the train data of a target classifier.</p>
+                        <ul>
+                            <li>Scan Date : {{ data_poisoning.fc.date }}</li>
+                            <li>Consequence : {{ data_poisoning.fc.consequence }}</li>
+                            <li>Replay's ipynb : {{ data_poisoning.fc.ipynb_path }}</li>
+                            <li>Countermeasure : {{ data_poisoning.fc.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if data_poisoning.cp.exist %}
+                        <h4>Convex Polytope Attack</h4>
+                            <p>Convex Polytope Attack is a Zero-knowledge attack that poisoned train data of a target classifier so that the feature vector of the trigger lies within the convex polytope of the feature vectors of multiple poison data.</p>
+                        <ul>
+                            <li>Scan Date : {{ data_poisoning.cp.date }}</li>
+                            <li>Consequence : {{ data_poisoning.cp.consequence }}</li>
+                            <li>Replay's ipynb : {{ data_poisoning.cp.ipynb_path }}</li>
+                            <li>Countermeasure : {{ data_poisoning.cp.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+                    </section>
+                    {% endif %}
+
+                    {% if model_poisoning.exist %}
+                    <!-- モデル汚染攻撃の詳細情報 -->
+                    <h3 class="h3_icon">Model Poisoning</h3>
+                    <p>Model Poisoning attack is an attack that embeds a "backdoor" and "malicious layers" into the target classifier.</p>
+                    <p><b>The backdoor</b> causes the input data known only to the adversary (Trigger) to misclassify it into the class intended by the adversary. The adversary injects the Trojan Nodes into the hidden layers of the pre-trained model and distributes it to victim users. If victim user develop classifier using the pre-trained model injected the Trojan Nodes, then the decision boundary of the classifier is distorted by the Trojan nodes.</p>
+                    <p><b>The malicious layers</b> execute the system commands intended by the adversary on the system operating the classifier. The adversary injects the layers describing arbitrary system commands (e.g. Lambda layer of TensorFlow) into the pre-trained model and distributes it to the victim users. If the victim users develop classifier using the pre-training model, the malicious layers execute the malicious system commands on the system operating the classifier.</p>
+                    <section class="vuln_2nd_category">
+                        {% if model_poisoning.node_injection.exist %}
+                        <h4>Node Injection Attack</h4>
+                            <p>Node Injection Attack is an attack that injects a Trojan Nodes into a pre-trained model that causes the Trigger to misclassify into the class intended by the adversary.</p>
+                        <ul>
+                            <li>Scan Date : {{ model_poisoning.node_injection.date }}</li>
+                            <li>Consequence : {{ model_poisoning.node_injection.consequence }}</li>
+                            <li>Replay's ipynb : {{ model_poisoning.node_injection.ipynb_path }}</li>
+                            <li>Countermeasure : {{ model_poisoning.node_injection.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if model_poisoning.layer_injection.exist %}
+                        <h4>Malicious Layer Injection Attack</h4>
+                            <p>Malicious Layer Injection Attack is an attack that injects layers that executes malicious system commands into a pre-trained model. If target classifier infers, then malicious system commands to be executed on the system operating the target classifier.</p>
+                        <ul>
+                            <li>Scan Date : {{ model_poisoning.layer_injection.date }}</li>
+                            <li>Consequence : {{ model_poisoning.layer_injection.consequence }}</li>
+                            <li>Replay's ipynb : {{ model_poisoning.layer_injection.ipynb_path }}</li>
+                            <li>Countermeasure : {{ model_poisoning.layer_injection.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+                    </section>
+                    {% endif %}
+
+                    {% if evasion.exist %}
+                    <!-- 回避攻撃の詳細情報 -->
+                    <h3 class="h3_icon">Evasion</h3>
+                    <p>The Evasion Attack is an attack that causes the target classifier to misclassify the Adversarial Examples into the class intended by the adversary.</p>
+                    <p>The adversary perturbs the input data to the classifier to create a Adversarial Examples. If the adversary inputs the Adversarial Examples to the target classifier, then the target classifier misclassify it into the class intended by the adversary.</p>
+                    <section class="vuln_2nd_category">
+                        {% if evasion.fgsm.exist %}
+                        <h4>Fast Gradient Sign Method (FGSM)</h4>
+                            <p>FGSM uses the gradient of the target classifier to create Adversarial Examples. In the case of images, FGSM uses the gradient of the loss function for the input image and adds perturbations into the image to maximize the loss.</p>
+                        <ul>
+                            <li>Scan Date : {{ evasion.fgsm.date }}</li>
+                            <li>Consequence : {{ evasion.fgsm.consequence }}</li>
+                            <li>Accuracy on AE : {{ evasion.fgsm.accuracy }}%</li>
+                            <li>Replay's ipynb : {{ evasion.fgsm.ipynb }}</li>
+                            <li>Countermeasure : {{ evasion.fgsm.countermeasure }}</li>
+                        </ul>
+                        <p>Adversarial Examples</p>
+                        <ul class="clearfix aes_list">
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/fgsm_5.jpg" alt="Adversarial Exmaples #5."></li>
+                        </ul>
+                        <ul>
+                            <li>AEs Path : {{ evasion.fgsm.aes_path }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if evasion.cnw.exist %}
+                        <h4>Carlini and Wagner Attack (C&W)</h4>
+                            <p>The Carlini and Wagner attack uses a L2 norm of the target classifier to create targeted Adversarial Examples.</p>
+                        <ul>
+                            <li>Scan Date : {{ evasion.cnw.date }}</li>
+                            <li>Consequence : {{ evasion.cnw.consequence }}</li>
+                            <li>Accuracy on AE : {{ evasion.cnw.accuracy }}%</li>
+                            <li>Replay's ipynb : {{ evasion.cnw.ipynb_path }}</li>
+                            <li>Countermeasure : {{ evasion.cnw.countermeasure }}</li>
+                        </ul>
+                        <p>Adversarial Examples</p>
+                        <ul class="clearfix aes_list">
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/cnw_5.jpg" alt="Adversarial Exmaples #5."></li>
+                        </ul>
+                        <ul>
+                            <li>AEs Path : {{ evasion.cnw.aes_path }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if evasion.jsma.exist %}
+                        <h4>Jacobian Saliency Map Attack (JSMA)</h4>
+                            <p>JSMA is to makes optimal mini-scale changes to input data until the classifier is fooled or a maximum number of changes is met.</p>
+                        <ul>
+                            <li>Scan Date : {{ evasion.jsma.date }}</li>
+                            <li>Consequence : {{ evasion.jsma.consequence }}</li>
+                            <li>Accuracy on AE : {{ evasion.jsma.accuracy }}%</li>
+                            <li>Replay's ipynb : {{ evasion.jsma.ipynb_path }}</li>
+                            <li>Countermeasure : {{ evasion.jsma.countermeasure }}</li>
+                        </ul>
+                        <p>Adversarial Examples</p>
+                        <ul class="clearfix aes_list">
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_1.jpg" alt="Adversarial Exmaples #1."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_2.jpg" alt="Adversarial Exmaples #2."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_3.jpg" alt="Adversarial Exmaples #3."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_4.jpg" alt="Adversarial Exmaples #4."></li>
+                            <li><img src="{% static 'atd/img/report/' %}{{ target.dataset_img }}/img/jsma_5.jpg" alt="Adversarial Exmaples #5."></li>
+                        </ul>
+                        <ul>
+                            <li>AEs Path : {{ evasion.jsma.aes_path }}</li>
+                        </ul>
+                        {% endif %}
+                    </section>
+                    {% endif %}
+
+                    {% if exfiltration.exist %}
+                    <!-- 抽出攻撃の詳細情報 -->
+                    <h3 class="h3_icon">Exfiltration</h3>
+                    <p>Exfiltration is an attack that steals the parameters and train data of a target classifier.</p>
+                    <section class="vuln_2nd_category">
+                        {% if exfiltration.mi.exist %}
+                        <h4>Membership Inference Attack</h4>
+                            <p>Membership Inference Attack is an attack that the adversary infers the train data of the target classifier based on the input data and responses (classification labels and confidence values) to the target classifier.</p>
+                        <ul>
+                            <li>Scan Date : {{ exfiltration.mi.date }}</li>
+                            <li>Consequence : {{ exfiltration.mi.consequence }}</li>
+                            <li>Replay's ipynb : {{ exfiltration.mi.ipynb_path }}</li>
+                            <li>Countermeasure : {{ exfiltration.mi.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if exfiltration.label_only_mi.exist %}
+                        <h4>Label Only Membership Inference Attack</h4>
+                            <p>Label Only Membership Inference Attack is an attack that the adversary infers the train data of the target classifier based on the input data and response (classification labels) to the target classifier.</p>
+                        <ul>
+                            <li>Scan Date : {{ exfiltration.label_only_mi.date }}</li>
+                            <li>Consequence : {{ exfiltration.label_only_mi.consequence }}</li>
+                            <li>Replay's ipynb : {{ exfiltration.label_only_mi.ipynb_path }}</li>
+                            <li>Countermeasure : {{ exfiltration.label_only_mi.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+
+                        {% if exfiltration.model_inversion.exist %}
+                        <h4>Model Inversion	Attack</h4>
+                            <p>Model extraction attack is an attack in that an adversary infers the decision boundary of a target classifier based on the input data and responses (classification labels and confidence values) to the target classifier.</p>
+                        <ul>
+                            <li>Scan Date : {{ exfiltration.model_inversion.date }}</li>
+                            <li>Consequence : {{ exfiltration.model_inversion.consequence }}</li>
+                            <li>Replay's ipynb : {{ exfiltration.model_inversion.ipynb_path }}</li>
+                            <li>Countermeasure : {{ exfiltration.model_inversion.countermeasure }}</li>
+                        </ul>
+                        {% endif %}
+                    </section>
+                    {% endif %}
+                </section>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<footer>
+    <small>©2021- Mitsui Bussan Secure Directions, Inc. All rights reserved.</small>
+</footer>
+</body>
+</html>

@@ -4,6 +4,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 ATD_DIR = '/home/itakaesu/PycharmProjects/Adversarial-Threat-Detector/'
+GYOITHON_DIR = '/home/itakaesu/PycharmProjects/GyoiThon/'
 
 
 # Quick-start development settings - unsuitable for production
@@ -22,6 +23,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'atd.apps.AtdConfig',
+    'gyoithon.apps.GyoithonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -82,6 +84,10 @@ DATABASES = {
     'atd': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ATD_DIR + 'sqlite3/scan_result.db',
+    },
+    'gyoithon': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': GYOITHON_DIR + 'sqlite3/scan_result.db',
     }
 }
 

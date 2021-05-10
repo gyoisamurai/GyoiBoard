@@ -1,0 +1,12 @@
+{% extends "atd/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Scan Result{% endblock title %}
+
+{% block content %}
+<h4 class="mt-4 mb-5 border-bottom">Scan Result</h4>
+{{ result }}
+
+<hr>
+<a href="{% url 'atd:target_list' %}" class="btn btn-secondary btn-sm">Back</a>
+{% endblock content %}

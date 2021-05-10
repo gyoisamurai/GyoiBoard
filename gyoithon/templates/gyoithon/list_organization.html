@@ -1,0 +1,52 @@
+{% extends "gyoithon/base.html" %}
+
+{% block title %}Organization List{% endblock title %}
+
+{% block breadcrumb_title %}Organization List{% endblock breadcrumb_title %}
+
+{% block body_title %}Organization List{% endblock body_title %}
+
+{% block body_description %}This is the organization list.{% endblock body_description %}
+
+{% block content %}
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Organization</th>
+            <th scope="col">Overview</th>
+            <th scope="col">Domains</th>
+            <th scope="col">Subdomains</th>
+            <th scope="col">Status</th>
+            <th scope="col">Registration date</th>
+            <th scope="col">Operation</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for organization in organizations %}
+          <tr>
+            <th scope="row">{{ organization.id }}</th>
+            <td>{{ organization.name }}</a></td>
+            <td>{{ organization.overview }}</td>
+            <td>{{ organization.domain }}</td>
+            <td>{{ organization.subdomain }}</td>
+            <td>{{ organization.status }}</td>
+            <td>{{ organization.registration_date}}</td>
+            <td>
+              <a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}" class="btn btn-info btn-sm">View</a>
+              <a href="{% url 'gyoithon:edit_organization' organization_id=organization.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:delete_organization' organization_id=organization.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

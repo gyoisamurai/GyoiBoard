@@ -1,0 +1,158 @@
+{% extends "gyoithon/base.html" %}
+
+{% block title %}Domain Detail{% endblock title %}
+
+{% block breadcrumb_title %}{{ organization.name }} / {{ domain.name }}{% endblock breadcrumb_title %}
+
+{% block body_title %}{{ domain.name }}{% endblock body_title %}
+
+{% block body_description %}This is "{{ domain.name }}" detail.{% endblock body_description %}
+
+{% block content %}
+<h4 class="mt-4 border-bottom">Domain Information</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>Organization Name</th>
+            <td>{{ organization.name }}</td>
+          </tr>
+          <tr>
+            <th>Domain ID</th>
+            <td>{{ domain.id }}</td>
+          </tr>
+          <tr>
+            <th>Domain Name</th>
+            <td>{{ domain.name }}</td>
+          </tr>
+          <tr>
+            <th>Registrar</th>
+            <td>{{ domain.registrar }}</td>
+          </tr>
+          <tr>
+            <th>Administrative Contact</th>
+            <td>{{ domain.administrative_contact }}</td>
+          </tr>
+          <tr>
+            <th>Registrant Name</th>
+            <td>{{ domain.registrant_name }}</td>
+          </tr>
+          <tr>
+            <th>Registrant Organization</th>
+            <td>{{ domain.registrant_organization }}</td>
+          </tr>
+          <tr>
+            <th>Registrant Email</th>
+            <td>{{ domain.registrant_email }}</td>
+          </tr>
+          <tr>
+            <th>Admin Name</th>
+            <td>{{ domain.admin_name }}</td>
+          </tr>
+          <tr>
+            <th>Admin Organization</th>
+            <td>{{ domain.admin_organization }}</td>
+          </tr>
+          <tr>
+            <th>Admin Email</th>
+            <td>{{ domain.admin_email }}</td>
+          </tr>
+          <tr>
+            <th>Tech Name</th>
+            <td>{{ domain.tech_name }}</td>
+          </tr>
+          <tr>
+            <th>Tech Organization</th>
+            <td>{{ domain.tech_organization }}</td>
+          </tr>
+          <tr>
+            <th>Tech Email</th>
+            <td>{{ domain.tech_email }}</td>
+          </tr>
+          <tr>
+            <th>Name Server</th>
+            <td>{{ domain.name_server }}</td>
+          </tr>
+           <tr>
+            <th>Subdomains</th>
+            <td>{{ domain.subdomain }}</td>
+          </tr>
+          <tr>
+            <th>Status</th>
+            <td>{{ domain.status }}</td>
+          </tr>
+          <tr>
+            <th>Registration Date</th>
+            <td>{{ domain.registration_date }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Subdomain List</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>No</th>
+            <th>Name</th>
+            <th>IP Address</th>
+            <th>HTTP Accessible</th>
+            <th>HTTPS Accessible</th>
+            <th>Status</th>
+            <th>Registration Date</th>
+            <th>Operation</th>
+          </tr>
+          </thead>
+          {% for subdomain in subdomains %}
+          <tr>
+            <th scope="row">{{ subdomain.id }}</th>
+            <td>{{ subdomain.name }}</td>
+            <td>{{ subdomain.ip_address }}</td>
+            <td>{{ subdomain.http_accessible }}</td>
+            <td>{{ subdomain.https_accessible }}</td>
+            <td>{{ subdomain.status }}</td>
+            <td>{{ subdomain.registration_date}}</td>
+            <td>
+              <a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">View</a>
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Add subdomains</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>GyoiThon searches subdomains of "{{ domain.name }}".</th>
+            <td><a href="{% url 'gyoithon:list_organization' %}" class="btn btn-danger">Search</a></td>
+          </tr>
+          <tr>
+            <th>You add a subdomain manually.</th>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Manual</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+{% endblock content %}
