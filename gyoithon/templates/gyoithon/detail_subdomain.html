@@ -9,7 +9,7 @@
 {% block body_description %}This is "{{ subdomain.name }}" detail.{% endblock body_description %}
 
 {% block content %}
-<h4 class="mt-4 border-bottom">Subdomain Information</h4>
+<h4 class="mt-4 border-bottom">Basic Information</h4>
 <div class="col-12 col-xl-12 mb-4 mb-lg-0">
   <div class="card">
     <div class="card-body">
@@ -107,6 +107,11 @@
             <th>Registration Date</th>
             <td>{{ subdomain.registration_date }}</td>
           </tr>
+          <tr>
+            <th colspan="2">
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
+            </th>
+          </tr>
         </table>
       </div>
     </div>
@@ -121,8 +126,56 @@
         <table class="table">
           <tr>
             <th>GyoiThon executes vulnerability assessment to "{{ subdomain.name }}".</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Run</a></td>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-danger">Run Assessment</a></td>
           </tr>
+          <tr>
+            <th>You add a assessment result manually.</th>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Manual</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Assessment Results</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>No</th>
+            <th>Name</th>
+            <th>IP Address</th>
+            <th>HTTP Accessible</th>
+            <th>HTTPS Accessible</th>
+            <th>Status</th>
+            <th>Registration Date</th>
+            <th colspan="2">Operation</th>
+          </tr>
+          </thead>
+          {% for subdomain in subdomains %}
+          <tr>
+            <th scope="row">{{ subdomain.id }}</th>
+            <td>{{ subdomain.name }}</td>
+            <td>{{ subdomain.ip_address }}</td>
+            <td>{{ subdomain.http_accessible }}</td>
+            <td>{{ subdomain.https_accessible }}</td>
+            <td>{{ subdomain.status }}</td>
+            <td>{{ subdomain.registration_date}}</td>
+            <td>
+              <input type="checkbox" name="bulk_vulnerability_assessment" value="1">
+            </td>
+            <td>
+              <a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">View</a>
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>

@@ -86,10 +86,12 @@ def registration_domain(request, organization_id):
         form = RegistrationDomainForm(request.POST)
         if form.is_valid():
             domain = form.save(commit=False)
-            domain.organization_id = organization_id
+            domain.related_organization_id = organization_id
             domain.save()
             messages.success(request, 'You added new domain: "{}".'.format(domain.name))
             domains = Domain.objects.filter(related_organization_id__exact=organization_id).order_by('id')
+            organization.domain = len(domains)
+            organization.save()
             return render(request, 'gyoithon/detail_organization.html', {'organization': organization,
                                                                          'domains': domains})
     else:
@@ -127,9 +129,17 @@ def edit_domain(request, organization_id, domain_id):
 
 # Delete domain.
 def delete_domain(request, organization_id, domain_id):
-    domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
+    if organization_id and domain_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
+        domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
+    else:
+        return redirect('gyoithon:top_page')
+
     domain.delete()
     messages.success(request, 'Delete domain "{}.{}"'.format(domain_id, domain.name))
+    organization.domain -= 1
+    organization.save()
+
     return redirect('gyoithon:top_page')
 
 
@@ -158,16 +168,22 @@ def registration_subdomain(request, organization_id, domain_id):
     if request.method == 'POST':
         form = RegistrationSubdomainForm(request.POST)
         if form.is_valid():
+            # Update Subdomain.
             subdomain = form.save(commit=False)
             subdomain.related_organization_id = organization_id
             subdomain.related_domain_id = domain_id
             subdomain.save()
             messages.success(request, 'You added new subdomain: "{}".'.format(subdomain.name))
-            subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
-                                                  related_domain_id__exact=domain_id).order_by('id')
+            all_subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id).order_by('id')
+            domain_subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
+                                                         related_domain_id__exact=domain_id).order_by('id')
+            organization.subdomain = len(all_subdomains)
+            organization.save()
+            domain.subdomain = len(domain_subdomains)
+            domain.save()
             return render(request, 'gyoithon/detail_domain.html', {'organization': organization,
                                                                    'domain': domain,
-                                                                   'subdomains': subdomains})
+                                                                   'subdomains': domain_subdomains})
     else:
         form = RegistrationSubdomainForm()
         form.related_organization_id = organization_id
@@ -213,12 +229,22 @@ def edit_subdomain(request, organization_id, domain_id, subdomain_id):
 
 # Delete subdomain.
 def delete_subdomain(request, organization_id, domain_id, subdomain_id):
+    if organization_id and subdomain_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
+        domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
+    else:
+        return redirect('gyoithon:top_page')
+
     subdomain = get_object_or_404(Subdomain,
                                   pk=subdomain_id,
                                   related_organization_id=organization_id,
                                   related_domain_id=domain_id)
     subdomain.delete()
     messages.success(request, 'Delete subdomain "{}.{}"'.format(subdomain_id, subdomain.name))
+    organization.subdomain -= 1
+    organization.save()
+    domain.subdomain -= 1
+    domain.save()
     return redirect('gyoithon:top_page')
 
 

@@ -43,6 +43,31 @@
             <th>Registration Date</th>
             <td>{{ organization.registration_date }}</td>
           </tr>
+          <tr>
+            <th colspan="2">
+              <a href="{% url 'gyoithon:edit_organization' organization_id=organization.id %}" class="btn btn-primary btn-sm">Edit</a>
+            </th>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Add domains</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <tr>
+            <th>GyoiThon searches domains of "{{ organization.name }}".</th>
+            <td><a href="{% url 'gyoithon:list_organization' %}" class="btn btn-warning">Domain Search</a></td>
+          </tr>
+          <tr>
+            <th>You add a domain manually.</th>
+            <td><a href="{% url 'gyoithon:registration_domain' organization_id=organization.id %}" class="btn btn-info">Manual</a></td>
+          </tr>
         </table>
       </div>
     </div>
@@ -64,7 +89,7 @@
             <th>Subdomains</th>
             <th>Status</th>
             <th>Registration Date</th>
-            <th>Operation</th>
+            <th colspan="2">Operation</th>
           </tr>
           </thead>
           {% for domain in domains %}
@@ -77,33 +102,29 @@
             <td>{{ domain.status }}</td>
             <td>{{ domain.registration_date}}</td>
             <td>
+              <input type="checkbox" name="bulk_vulnerability_assessment" value="1">
+            </td>
+            <td>
               <a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info btn-sm">View</a>
               <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-warning btn-sm">Subdomain Search</a>
               <a href="{% url 'gyoithon:delete_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-danger btn-sm">Delete</a>
             </td>
           </tr>
           {% endfor %}
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+              <button type="submit" class="btn btn-danger">Run Assessment</button>
+            </td>
+          </tr>
           </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<h4 class="mt-4 border-bottom">Add domains</h4>
-<div class="col-12 col-xl-12 mb-4 mb-lg-0">
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table">
-          <tr>
-            <th>GyoiThon searches domains of "{{ organization.name }}".</th>
-            <td><a href="{% url 'gyoithon:list_organization' %}" class="btn btn-danger">Search</a></td>
-          </tr>
-          <tr>
-            <th>You add a domain manually.</th>
-            <td><a href="{% url 'gyoithon:registration_domain' organization_id=organization.id %}" class="btn btn-info">Manual</a></td>
-          </tr>
         </table>
       </div>
     </div>
