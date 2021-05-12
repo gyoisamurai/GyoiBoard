@@ -28,6 +28,10 @@
             <td>{{ domain.name }}</td>
           </tr>
           <tr>
+            <th>Registration Date</th>
+            <td>{{ domain.registration_date }}</td>
+          </tr>
+          <tr>
             <th>Registrar</th>
             <td>{{ domain.registrar }}</td>
           </tr>
@@ -73,23 +77,23 @@
           </tr>
           <tr>
             <th>Name Server</th>
-            <td>{{ domain.name_server }}</td>
+            <td>{{ domain.name_server | linebreaksbr }}</td>
           </tr>
            <tr>
             <th>Subdomains</th>
             <td>{{ domain.subdomain }}</td>
           </tr>
           <tr>
+            <th>Rank</th>
+            <td>{{ domain.get_rank_display }}</td>
+          </tr>
+          <tr>
             <th>Status</th>
             <td>{{ domain.status }}</td>
           </tr>
           <tr>
-            <th>Registration Date</th>
-            <td>{{ domain.registration_date }}</td>
-          </tr>
-          <tr>
             <th colspan="2">
-              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info btn-sm">Edit</a>
             </th>
           </tr>
         </table>
@@ -98,19 +102,19 @@
   </div>
 </div>
 
-<h4 class="mt-4 border-bottom">Add subdomains</h4>
+<h4 class="mt-4 border-bottom">Add Subdomains</h4>
 <div class="col-12 col-xl-12 mb-4 mb-lg-0">
   <div class="card">
     <div class="card-body">
       <div class="table-responsive">
         <table class="table">
           <tr>
-            <th>GyoiThon searches subdomains of "{{ domain.name }}".</th>
-            <td><a href="{% url 'gyoithon:list_organization' %}" class="btn btn-warning">Search</a></td>
+            <th>GyoiThon searches "<u>Subdomains</u>" of "{{ domain.name }}".</th>
+            <td><a href="{% url 'gyoithon:search_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-success">Search Subdomain</a></td>
           </tr>
           <tr>
-            <th>You add a subdomain manually.</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Manual</a></td>
+            <th>You add a "<u>Subdomain</u>" manually.</th>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Add Manually</a></td>
           </tr>
         </table>
       </div>
@@ -126,32 +130,34 @@
         <table class="table">
           <thead>
           <tr>
-            <th>No</th>
+            <th>ID</th>
             <th>Name</th>
+            <th>Registration Date</th>
             <th>IP Address</th>
             <th>HTTP Accessible</th>
             <th>HTTPS Accessible</th>
+            <th>Rank</th>
             <th>Status</th>
-            <th>Registration Date</th>
-            <th colspan="2">Operation</th>
+            <th colspan="2"></th>
           </tr>
           </thead>
           {% for subdomain in subdomains %}
           <tr>
             <th scope="row">{{ subdomain.id }}</th>
             <td>{{ subdomain.name }}</td>
+            <td>{{ subdomain.registration_date}}</td>
             <td>{{ subdomain.ip_address }}</td>
             <td>{{ subdomain.http_accessible }}</td>
             <td>{{ subdomain.https_accessible }}</td>
+            <td>{{ subdomain.rank }}</td>
             <td>{{ subdomain.status }}</td>
-            <td>{{ subdomain.registration_date}}</td>
             <td>
               <input type="checkbox" name="bulk_vulnerability_assessment" value="1">
             </td>
             <td>
-              <a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">View</a>
-              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
-              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Delete</a>
+              <a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">View</a>
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Hide</a>
             </td>
           </tr>
           {% endfor %}
@@ -163,8 +169,9 @@
             <td></td>
             <td></td>
             <td></td>
-            <td colspan="2">
-              <button type="submit" class="btn btn-danger">Run Assessment</button>
+            <td colspan="3">
+              <button type="submit" class="btn btn-warning">Assess</button>
+              <button type="submit" class="btn btn-secondary">Hidden Subdomain</button>
             </td>
           </tr>
           </tbody>

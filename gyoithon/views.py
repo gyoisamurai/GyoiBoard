@@ -59,7 +59,8 @@ def edit_organization(request, organization_id=None):
 # Delete organization.
 def delete_organization(request, organization_id):
     organization = get_object_or_404(Organization, pk=organization_id)
-    organization.delete()
+    organization.invisible = True
+    organization.save()
     messages.success(request, 'Delete organization "{}.{}"'.format(organization_id, organization.name))
     return redirect('gyoithon:top_page')
 
@@ -89,7 +90,8 @@ def registration_domain(request, organization_id):
             domain.related_organization_id = organization_id
             domain.save()
             messages.success(request, 'You added new domain: "{}".'.format(domain.name))
-            domains = Domain.objects.filter(related_organization_id__exact=organization_id).order_by('id')
+            domains = Domain.objects.filter(related_organization_id__exact=organization_id,
+                                            invisible__exact=False).order_by('id')
             organization.domain = len(domains)
             organization.save()
             return render(request, 'gyoithon/detail_organization.html', {'organization': organization,
@@ -135,7 +137,8 @@ def delete_domain(request, organization_id, domain_id):
     else:
         return redirect('gyoithon:top_page')
 
-    domain.delete()
+    domain.invisible = True
+    domain.save()
     messages.success(request, 'Delete domain "{}.{}"'.format(domain_id, domain.name))
     organization.domain -= 1
     organization.save()
@@ -174,9 +177,11 @@ def registration_subdomain(request, organization_id, domain_id):
             subdomain.related_domain_id = domain_id
             subdomain.save()
             messages.success(request, 'You added new subdomain: "{}".'.format(subdomain.name))
-            all_subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id).order_by('id')
+            all_subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
+                                                      invisible__exact=False).order_by('id')
             domain_subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
-                                                         related_domain_id__exact=domain_id).order_by('id')
+                                                         related_domain_id__exact=domain_id,
+                                                         invisible_exact=False).order_by('id')
             organization.subdomain = len(all_subdomains)
             organization.save()
             domain.subdomain = len(domain_subdomains)
@@ -239,7 +244,8 @@ def delete_subdomain(request, organization_id, domain_id, subdomain_id):
                                   pk=subdomain_id,
                                   related_organization_id=organization_id,
                                   related_domain_id=domain_id)
-    subdomain.delete()
+    subdomain.invisible = True
+    subdomain.save()
     messages.success(request, 'Delete subdomain "{}.{}"'.format(subdomain_id, subdomain.name))
     organization.subdomain -= 1
     organization.save()
@@ -260,5 +266,27 @@ def detail_subdomain(request, organization_id, domain_id, subdomain_id):
         return render(request, 'gyoithon/detail_subdomain.html', {'organization': organization,
                                                                   'domain': domain,
                                                                   'subdomain': subdomain})
+    else:
+        return redirect('gyoithon:top_page')
+
+
+# Search Domain.
+def search_domain(request, organization_id):
+    if organization_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
+        messages.warning(request, 'Not Implementation Search Domain for "{}"'.format(organization.name))
+        return redirect('gyoithon:top_page')
+    else:
+        return redirect('gyoithon:top_page')
+
+
+# Search Subdomain.
+def search_subdomain(request, organization_id, domain_id):
+    if organization_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
+        domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
+        messages.warning(request, 'Not Implementation Search Subdomain for "{} - {}"'.format(organization.name,
+                                                                                             domain.name))
+        return redirect('gyoithon:top_page')
     else:
         return redirect('gyoithon:top_page')

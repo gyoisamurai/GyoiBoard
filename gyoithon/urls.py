@@ -19,6 +19,8 @@ urlpatterns = [
     path('organization/<int:organization_id>/domain/<int:domain_id>/subdomain/<int:subdomain_id>/edit', views.edit_subdomain, name='edit_subdomain'),
     path('organization/<int:organization_id>/domain/<int:domain_id>/subdomain/<int:subdomain_id>/del', views.delete_subdomain, name='delete_subdomain'),
     path('organization/<int:organization_id>/domain/<int:domain_id>/subdomain/<int:subdomain_id>/', views.detail_subdomain, name='detail_subdomain'),
+    path('organization/<int:organization_id>/search/domain', views.search_domain, name='search_domain'),
+    path('organization/<int:organization_id>/domain/<int:domain_id>/search/subdomain/', views.search_subdomain, name='search_subdomain'),
 ]
 
 if settings.DEBUG:

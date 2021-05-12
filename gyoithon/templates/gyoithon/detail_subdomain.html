@@ -1,4 +1,5 @@
 {% extends "gyoithon/base.html" %}
+{% load i18n static %}
 
 {% block title %}Subdomain Detail{% endblock title %}
 
@@ -16,16 +17,8 @@
       <div class="table-responsive">
         <table class="table">
           <tr>
-            <th>Organization Name</th>
-            <td>{{ organization.name }}</td>
-          </tr>
-          <tr>
-            <th>Domain Name</th>
-            <td>{{ domain.name }}</td>
-          </tr>
-          <tr>
-            <th>Subdomain ID</th>
-            <td>{{ subdomain.id }}</td>
+            <th>Registration Date</th>
+            <td>{{ subdomain.registration_date }}</td>
           </tr>
           <tr>
             <th>Subdomain Name</th>
@@ -36,12 +29,8 @@
             <td>{{ subdomain.ip_address }}</td>
           </tr>
           <tr>
-            <th>HTTP: Accessible</th>
-            <td>{{ subdomain.http_accessible }}</td>
-          </tr>
-          <tr>
-            <th>HTTP: Location</th>
-            <td>{{ subdomain.http_location }}</td>
+            <th>HTTP Accessible</th>
+            <td>{{ subdomain.http_accessible }} ({{ subdomain.http_location }})</td>
           </tr>
           <tr>
             <th>HTTP: Page Title</th>
@@ -56,12 +45,8 @@
             <td>{{ subdomain.http_screenshot_path }}</td>
           </tr>
           <tr>
-            <th>HTTPS: Accessible</th>
-            <td>{{ subdomain.https_accessible }}</td>
-          </tr>
-          <tr>
-            <th>HTTPS: Location</th>
-            <td>{{ subdomain.https_location }}</td>
+            <th>HTTPS Accessible</th>
+            <td>{{ subdomain.https_accessible }} ({{ subdomain.https_location }})</td>
           </tr>
           <tr>
             <th>HTTPS: Page Title</th>
@@ -77,41 +62,76 @@
           </tr>
           <tr>
             <th>DNS: A Record</th>
-            <td>{{ subdomain.dns_a_record }}</td>
+            <td>{{ subdomain.dns_a_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>DNS: CNAME Record</th>
-            <td>{{ subdomain.dns_cname_record }}</td>
+            <td>{{ subdomain.dns_cname_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>DNS: NS Record</th>
-            <td>{{ subdomain.dns_ns_record }}</td>
+            <td>{{ subdomain.dns_ns_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>DNS: MX Record</th>
-            <td>{{ subdomain.dns_mx_record }}</td>
+            <td>{{ subdomain.dns_mx_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>DNS: SOA Record</th>
-            <td>{{ subdomain.dns_soa_record }}</td>
+            <td>{{ subdomain.dns_soa_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>DNS: TXT Record</th>
-            <td>{{ subdomain.dns_txt_record }}</td>
+            <td>{{ subdomain.dns_txt_record | linebreaksbr }}</td>
+          </tr>
+          <tr>
+            <th>Rank</th>
+            <td>{{ subdomain.get_rank_display }}</td>
           </tr>
           <tr>
             <th>Status</th>
             <td>{{ subdomain.status }}</td>
           </tr>
           <tr>
-            <th>Registration Date</th>
-            <td>{{ subdomain.registration_date }}</td>
-          </tr>
-          <tr>
             <th colspan="2">
-              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">Edit</a>
             </th>
           </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4 border-bottom">Screenshot</h4>
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>HTTP</th>
+            <th>HTTPS</th>
+          </tr>
+          </thead>
+          <tr>
+            <td>
+              {{ subdomain.http_page_title }}
+              <figure>
+                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.http_screenshot_path }}" alt="{{ subdomain.http_page_title }}" width="50%">
+                <figcaption>{{ subdomain.http_screenshot_url }}</figcaption>
+              </figure>
+            </td>
+            <td>
+              {{ subdomain.https_page_title }}
+              <figure>
+                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.https_screenshot_path }}" alt="{{ subdomain.https_page_title }}" width="50%">
+                <figcaption>{{ subdomain.https_screenshot_url }}</figcaption>
+              </figure>
+            </td>
+          </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -125,12 +145,8 @@
       <div class="table-responsive">
         <table class="table">
           <tr>
-            <th>GyoiThon executes vulnerability assessment to "{{ subdomain.name }}".</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-danger">Run Assessment</a></td>
-          </tr>
-          <tr>
-            <th>You add a assessment result manually.</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Manual</a></td>
+            <th>GyoiThon executes "<u>Vulnerability Assessment</u>" to "{{ subdomain.name }}".</th>
+            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-warning">Assess</a></td>
           </tr>
         </table>
       </div>
@@ -146,7 +162,7 @@
         <table class="table">
           <thead>
           <tr>
-            <th>No</th>
+            <th>ID</th>
             <th>Name</th>
             <th>IP Address</th>
             <th>HTTP Accessible</th>
@@ -171,7 +187,7 @@
             <td>
               <a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">View</a>
               <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-primary btn-sm">Edit</a>
-              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Delete</a>
+              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger btn-sm">Hide</a>
             </td>
           </tr>
           {% endfor %}

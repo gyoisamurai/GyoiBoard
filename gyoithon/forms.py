@@ -12,7 +12,7 @@ class RegistrationOrganizationForm(forms.ModelForm):
 
     class Meta:
         model = Organization
-        fields = ('name', 'overview')
+        fields = ('name', 'region', 'industry', 'overview')
 
 
 # Organization Update Form.
@@ -25,12 +25,14 @@ class UpdateOrganizationForm(forms.ModelForm):
         self.fields['name'].widget.attrs['readonly'] = 'readonly'
         self.fields['domain'].widget.attrs['readonly'] = 'readonly'
         self.fields['subdomain'].widget.attrs['readonly'] = 'readonly'
+        self.fields['rank'].widget.attrs['readonly'] = 'readonly'
         self.fields['status'].widget.attrs['readonly'] = 'readonly'
         self.fields['registration_date'].widget.attrs['readonly'] = 'readonly'
 
     class Meta:
         model = Organization
-        fields = ('name', 'overview', 'domain', 'subdomain', 'status', 'registration_date')
+        fields = ('name', 'region', 'industry', 'overview', 'domain', 'subdomain', 'rank', 'status',
+                  'registration_date')
 
 
 # Domain Registration Form.
@@ -57,6 +59,7 @@ class UpdateDomainForm(forms.ModelForm):
         self.fields['related_organization_id'].widget.attrs['readonly'] = 'readonly'
         self.fields['name'].widget.attrs['readonly'] = 'readonly'
         self.fields['subdomain'].widget.attrs['readonly'] = 'readonly'
+        self.fields['rank'].widget.attrs['readonly'] = 'readonly'
         self.fields['status'].widget.attrs['readonly'] = 'readonly'
         self.fields['registration_date'].widget.attrs['readonly'] = 'readonly'
 
@@ -64,7 +67,7 @@ class UpdateDomainForm(forms.ModelForm):
         model = Domain
         fields = ('related_organization_id', 'name', 'registrar', 'administrative_contact', 'registrant_name',
                   'registrant_organization', 'registrant_email', 'admin_name', 'admin_organization', 'admin_email',
-                  'tech_name', 'tech_organization', 'tech_email', 'name_server', 'subdomain', 'status',
+                  'tech_name', 'tech_organization', 'tech_email', 'name_server', 'subdomain', 'rank', 'status',
                   'registration_date')
 
 
@@ -77,10 +80,11 @@ class RegistrationSubdomainForm(forms.ModelForm):
 
     class Meta:
         model = Subdomain
-        fields = ('name', 'ip_address', 'http_accessible', 'http_location', 'http_page_title', 'http_screenshot_url',
-                  'http_screenshot_path', 'https_accessible', 'https_location', 'https_page_title',
-                  'https_screenshot_url', 'https_screenshot_path', 'dns_a_record', 'dns_cname_record', 'dns_ns_record',
-                  'dns_mx_record', 'dns_txt_record')
+        fields = ('name', 'ip_address', 'production', 'cloud_type', 'http_accessible', 'http_location',
+                  'http_page_title', 'http_screenshot_url', 'http_screenshot_path', 'https_accessible',
+                  'https_location', 'https_page_title', 'https_screenshot_url', 'https_screenshot_path',
+                  'dns_a_record', 'dns_cname_record', 'dns_ns_record', 'dns_mx_record', 'dns_soa_record',
+                  'dns_txt_record')
 
 
 # Subdomain Update Form.
@@ -93,12 +97,14 @@ class UpdateSubdomainForm(forms.ModelForm):
         self.fields['related_organization_id'].widget.attrs['readonly'] = 'readonly'
         self.fields['related_domain_id'].widget.attrs['readonly'] = 'readonly'
         self.fields['name'].widget.attrs['readonly'] = 'readonly'
+        self.fields['rank'].widget.attrs['readonly'] = 'readonly'
         self.fields['status'].widget.attrs['readonly'] = 'readonly'
         self.fields['registration_date'].widget.attrs['readonly'] = 'readonly'
 
     class Meta:
         model = Subdomain
-        fields = ('related_organization_id', 'related_domain_id', 'name', 'ip_address', 'http_accessible',
-                  'http_location', 'http_page_title', 'http_screenshot_url', 'http_screenshot_path', 'https_accessible',
-                  'https_location', 'https_page_title', 'https_screenshot_url', 'https_screenshot_path', 'dns_a_record',
-                  'dns_cname_record', 'dns_ns_record', 'dns_mx_record', 'dns_txt_record', 'status', 'registration_date')
+        fields = ('related_organization_id', 'related_domain_id', 'name', 'ip_address', 'production', 'cloud_type',
+                  'http_accessible', 'http_location', 'http_page_title', 'http_screenshot_url', 'http_screenshot_path',
+                  'https_accessible', 'https_location', 'https_page_title', 'https_screenshot_url',
+                  'https_screenshot_path', 'dns_a_record', 'dns_cname_record', 'dns_ns_record', 'dns_mx_record',
+                  'dns_soa_record', 'dns_txt_record', 'rank', 'status', 'registration_date')
