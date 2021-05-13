@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.contrib import messages
 
+from gyoiboard.tasks import executation
+from gyoithon.util import Utilty
 from gyoithon.models import Organization, Domain, Subdomain
 from gyoithon.forms import RegistrationOrganizationForm, UpdateOrganizationForm, RegistrationDomainForm, \
     UpdateDomainForm, RegistrationSubdomainForm, UpdateSubdomainForm
@@ -47,7 +49,9 @@ def edit_organization(request, organization_id=None):
             organization = form.save(commit=False)
             organization.save()
             messages.success(request, 'Update organization: {}.{}'.format(organization_id, organization.name))
-            return redirect('gyoithon:top_page')
+            domains = Domain.objects.filter(related_organization_id__exact=organization.id).order_by('id')
+            return render(request, 'gyoithon/detail_organization.html', {'organization': organization,
+                                                                         'domains': domains})
     else:
         form = UpdateOrganizationForm(instance=organization)
 
@@ -107,6 +111,7 @@ def registration_domain(request, organization_id):
 # Edit domain.
 def edit_domain(request, organization_id, domain_id):
     if organization_id and domain_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
         domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
     else:
         domain = Domain()
@@ -117,16 +122,17 @@ def edit_domain(request, organization_id, domain_id):
             domain = form.save(commit=False)
             domain.save()
             messages.success(request, 'Update domain: {}.{}'.format(domain.id, domain.name))
-            organization = get_object_or_404(Organization, pk=organization_id)
-            domains = Domain.objects.filter(related_organization_id__exact=organization.id).order_by('id')
-            return render(request, 'gyoithon/detail_organization.html', {'organization': organization,
-                                                                         'domains': domains})
+            subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
+                                                  related_domain_id__exact=domain_id).order_by('id')
+            return render(request, 'gyoithon/detail_domain.html', {'organization': organization,
+                                                                   'domain': domain,
+                                                                   'subdomains': subdomains})
     else:
         form = UpdateDomainForm(instance=domain)
 
-    return render(request, 'gyoithon/edit_domain.html', dict(domain=domain,
-                                                             form=form,
-                                                             organization_id=organization_id))
+    return render(request, 'gyoithon/edit_domain.html', {'form': form,
+                                                         'organization': organization,
+                                                         'domain': domain})
 
 
 # Delete domain.
@@ -202,6 +208,8 @@ def registration_subdomain(request, organization_id, domain_id):
 # Edit subdomain.
 def edit_subdomain(request, organization_id, domain_id, subdomain_id):
     if organization_id and domain_id and subdomain_id:
+        organization = get_object_or_404(Organization, pk=organization_id)
+        domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
         subdomain = get_object_or_404(Subdomain,
                                       pk=subdomain_id,
                                       related_organization_id=organization_id,
@@ -215,21 +223,16 @@ def edit_subdomain(request, organization_id, domain_id, subdomain_id):
             subdomain = form.save(commit=False)
             subdomain.save()
             messages.success(request, 'Update subdomain: {}.{}'.format(subdomain.id, subdomain.name))
-            organization = get_object_or_404(Organization, pk=organization_id)
-            domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
-            subdomains = Subdomain.objects.filter(related_organization_id__exact=organization_id,
-                                                  related_domain_id__exact=domain_id).order_by('id')
-            return render(request, 'gyoithon/detail_domain.html', {'organization': organization,
-                                                                   'domain': domain,
-                                                                   'subdomains': subdomains})
+            return render(request, 'gyoithon/detail_subdomain.html', {'organization': organization,
+                                                                      'domain': domain,
+                                                                      'subdomain': subdomain})
     else:
         form = UpdateSubdomainForm(instance=subdomain)
 
-    return render(request, 'gyoithon/edit_subdomain.html', dict(subdomain=subdomain,
-                                                                form=form,
-                                                                organization_id=organization_id,
-                                                                domain_id=domain_id,
-                                                                subdomain_id=subdomain.id))
+    return render(request, 'gyoithon/edit_subdomain.html', {'form': form,
+                                                            'organization': organization,
+                                                            'domain': domain,
+                                                            'subdomain': subdomain})
 
 
 # Delete subdomain.
@@ -282,11 +285,27 @@ def search_domain(request, organization_id):
 
 # Search Subdomain.
 def search_subdomain(request, organization_id, domain_id):
-    if organization_id:
+    utility = Utilty()
+    if organization_id and domain_id:
         organization = get_object_or_404(Organization, pk=organization_id)
         domain = get_object_or_404(Domain, pk=domain_id, related_organization_id=organization_id)
-        messages.warning(request, 'Not Implementation Search Subdomain for "{} - {}"'.format(organization.name,
-                                                                                             domain.name))
+
+        # Execution.
+        scan_id = utility.get_random_token(36)
+        command_option = utility.build_command(scan_id, request.POST, target)
+        command = 'python3 {}atd.py {}'.format(settings.ATD_DIR, command_option)
+        task = executation.delay('{}'.format(command))
+
+        # Update to ScanResult.
+        scan_result = ScanResult()
+        scan_result.scan_result = target
+        scan_result.scan_id = scan_id
+        scan_result.attack_method = request.POST['method']
+        scan_result.save()
+        messages.success(request,
+                         'Execute {} for "{}"'.format(utility.transform_attack_method_name(request.POST['method']),
+                                                      target.name))
+
         return redirect('gyoithon:top_page')
     else:
         return redirect('gyoithon:top_page')

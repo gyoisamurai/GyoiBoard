@@ -1,9 +1,15 @@
 {% extends "gyoithon/base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}Subdomain Registration{% endblock title %}
+{% block title %}Subdomain Registration: {{ domain.name }}{% endblock title %}
 
-{% block breadcrumb_title %}Subdomain Registration{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}">{{ organization.name }}</a>
+&nbsp;/&nbsp;
+<a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}">{{ domain.name }}</a>
+&nbsp;/&nbsp;
+Subdomain Registration
+{% endblock breadcrumb_title %}
 
 {% block body_title %}Subdomain Registration{% endblock body_title %}
 

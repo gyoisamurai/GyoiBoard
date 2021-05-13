@@ -1,9 +1,12 @@
 {% extends "gyoithon/base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}Organization Edit{% endblock title %}
+{% block title %}Edit: {{ organization.name }}{% endblock title %}
 
-{% block breadcrumb_title %}Organization Edit{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}">{{ organization.name }}</a>
+&nbsp;:&nbsp;Edit
+{% endblock breadcrumb_title %}
 
 {% block body_title %}Organization Edit{% endblock body_title %}
 
@@ -21,5 +24,5 @@
         </div>
     </div>
 </form>
-<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}" class="btn btn-secondary">Back</a>
 {% endblock content %}

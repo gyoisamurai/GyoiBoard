@@ -37,7 +37,7 @@ class CLOUDTYPE(models.IntegerChoices):
 class PRODUCTION(models.IntegerChoices):
     NONE_SELECT = 0, '-----'
     DEVELOPMENT = 1, 'Development'
-    LAUNCHED = 2, 'Launched'
+    LAUNCHED = 2, 'Production'
 
 
 # Enum of Rank.
@@ -49,6 +49,13 @@ class RANK(models.IntegerChoices):
     CRITICAL = 4, 'Critical'
 
 
+# Enum of Status.
+class STATUS(models.IntegerChoices):
+    STOP = 0, '-----'
+    SEARCH = 1, 'Search'
+    ASSESS = 2, 'Assess'
+
+
 # Organization.
 class Organization(models.Model):
     name = models.CharField(verbose_name='Organization Name', max_length=255, blank=False)
@@ -58,7 +65,7 @@ class Organization(models.Model):
     domain = models.IntegerField(verbose_name='Domain', default=0)
     subdomain = models.IntegerField(verbose_name='Subdomain', default=0)
     rank = models.IntegerField(verbose_name='Rank', choices=RANK.choices, default=0)
-    status = models.CharField(verbose_name='Status', max_length=10, default='N/A')
+    status = models.IntegerField(verbose_name='Status', choices=STATUS.choices, default=0)
     invisible = models.BooleanField(verbose_name='Invisible', default=False)
     registration_date = models.DateTimeField(default=timezone.now())
 
@@ -70,6 +77,7 @@ class Organization(models.Model):
 class Domain(models.Model):
     related_organization_id = models.IntegerField(verbose_name='Related Organization ID', blank=False)
     name = models.CharField(verbose_name='Domain Name', max_length=255, blank=False)
+    overview = models.TextField(verbose_name='Overview', max_length=1000, default='')
     registrar = models.CharField(verbose_name='Registrar', max_length=255, default='N/A')
     administrative_contact = models.CharField(verbose_name='Administrative Contact', max_length=255, default='N/A')
     registrant_name = models.CharField(verbose_name='Registrant Name', max_length=255, default='N/A')
@@ -84,7 +92,7 @@ class Domain(models.Model):
     name_server = models.TextField(verbose_name='Name Server', max_length=1000, default='N/A')
     subdomain = models.IntegerField(verbose_name='Subdomain', default=0)
     rank = models.IntegerField(verbose_name='Rank', choices=RANK.choices, default=0)
-    status = models.CharField(verbose_name='Status', max_length=10, default='N/A')
+    status = models.IntegerField(verbose_name='Status', choices=STATUS.choices, default=0)
     invisible = models.BooleanField(verbose_name='Invisible', default=False)
     registration_date = models.DateTimeField(default=timezone.now())
 
@@ -97,6 +105,7 @@ class Subdomain(models.Model):
     related_organization_id = models.IntegerField(verbose_name='Related Organization ID', blank=False)
     related_domain_id = models.IntegerField(verbose_name='Related Domain ID', blank=False)
     name = models.CharField(verbose_name='Subdomain Name', max_length=255, blank=False)
+    overview = models.TextField(verbose_name='Overview', max_length=1000, default='')
     ip_address = models.CharField(verbose_name='IP Address', max_length=15, default='N/A')
     production = models.IntegerField(verbose_name='Production Environment', choices=PRODUCTION.choices, default=0)
     url_origin = models.CharField(verbose_name='Top URL', max_length=255, default='N/A')
@@ -120,7 +129,7 @@ class Subdomain(models.Model):
     dns_soa_record = models.TextField(verbose_name='DNS SOA Record', max_length=5000, default='N/A')
     dns_txt_record = models.TextField(verbose_name='DNS TXT Record', max_length=5000, default='N/A')
     rank = models.IntegerField(verbose_name='Rank', choices=RANK.choices, default=0)
-    status = models.CharField(verbose_name='Status', max_length=10, default='N/A')
+    status = models.IntegerField(verbose_name='Status', choices=STATUS.choices, default=0)
     invisible = models.BooleanField(verbose_name='Invisible', default=False)
     registration_date = models.DateTimeField(default=timezone.now())
 

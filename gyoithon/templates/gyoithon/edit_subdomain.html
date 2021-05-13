@@ -1,9 +1,16 @@
 {% extends "gyoithon/base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}Subdomain Edit{% endblock title %}
+{% block title %}Edit: {{ subdomain.name }}{% endblock title %}
 
-{% block breadcrumb_title %}Subdomain Edit{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}">{{ organization.name }}</a>
+&nbsp;/&nbsp;
+<a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}">{{ domain.name }}</a>
+&nbsp;/&nbsp;
+<a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}">{{ subdomain.name }}</a>
+&nbsp;:&nbsp;Edit
+{% endblock breadcrumb_title %}
 
 {% block body_title %}Subdomain Edit{% endblock body_title %}
 
@@ -12,7 +19,7 @@
 {% block content %}
 <h4 class="mt-4 border-bottom">{{ subdomain.id }}.{{ subdomain.name }}</h4>
 
-<form action="{% url 'gyoithon:edit_subdomain' organization_id=organization_id domain_id=domain_id subdomain_id=subdomain.id %}" method="post">
+<form action="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='horizontal' %}
     <div class="form-group row">
@@ -21,5 +28,6 @@
         </div>
     </div>
 </form>
-<a href="{% url 'gyoithon:detail_domain' organization_id=organization_id domain_id=domain_id %}" class="btn btn-secondary">Back</a>
+
+<a href="{% url 'gyoithon:detail_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}"  class="btn btn-secondary">Back</a>
 {% endblock content %}

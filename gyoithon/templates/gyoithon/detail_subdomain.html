@@ -1,16 +1,55 @@
 {% extends "gyoithon/base.html" %}
 {% load i18n static %}
 
-{% block title %}Subdomain Detail{% endblock title %}
+{% block title %}{{ subdomain.name }}{% endblock title %}
 
-{% block breadcrumb_title %}{{ organization.name }} / {{ domain.name }} / {{ subdomain.name }}{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}">{{ organization.name }}</a>
+&nbsp;/&nbsp;
+<a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}">{{ domain.name }}</a>
+&nbsp;/&nbsp;
+{{ subdomain.name }}
+{% endblock breadcrumb_title %}
 
 {% block body_title %}{{ subdomain.name }}{% endblock body_title %}
 
-{% block body_description %}This is "{{ subdomain.name }}" detail.{% endblock body_description %}
+{% block body_description %}{{ subdomain.overview | linebreaksbr }}{% endblock body_description %}
 
 {% block content %}
-<h4 class="mt-4 border-bottom">Basic Information</h4>
+{% if subdomain.http_screenshot_url != 'N/A' %}
+<div class="col-12 col-xl-12 mb-4 mb-lg-0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th><a href="{{ subdomain.http_screenshot_url }}">{{ subdomain.http_screenshot_url }}</a></th>
+            <th><a href="{{ subdomain.https_screenshot_url }}">{{ subdomain.https_screenshot_url }}</a></th>
+          </tr>
+          </thead>
+          <tr>
+            <td>
+              <figure>
+                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.http_screenshot_path }}" alt="{{ subdomain.http_page_title }}" width="50%">
+                <figcaption>{{ subdomain.http_page_title }}</figcaption>
+              </figure>
+            </td>
+            <td>
+              <figure>
+                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.https_screenshot_path }}" alt="{{ subdomain.https_page_title }}" width="50%">
+                <figcaption>{{ subdomain.https_page_title }}</figcaption>
+              </figure>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="col-12 col-xl-12 mb-4 mb-lg-0">
   <div class="card">
     <div class="card-body">
@@ -21,68 +60,28 @@
             <td>{{ subdomain.registration_date }}</td>
           </tr>
           <tr>
-            <th>Subdomain Name</th>
-            <td>{{ subdomain.name }}</td>
-          </tr>
-          <tr>
             <th>IP Address</th>
             <td>{{ subdomain.ip_address }}</td>
           </tr>
           <tr>
+            <th>Environment</th>
+            <td>{{ subdomain.get_production_display }}</td>
+          </tr>
+          <tr>
+            <th>Cloud Type</th>
+            <td>{{ subdomain.get_cloud_type_display }}</td>
+          </tr>
+          <tr>
             <th>HTTP Accessible</th>
-            <td>{{ subdomain.http_accessible }} ({{ subdomain.http_location }})</td>
-          </tr>
-          <tr>
-            <th>HTTP: Page Title</th>
-            <td>{{ subdomain.http_page_title }}</td>
-          </tr>
-          <tr>
-            <th>HTTP: Screenshot URL</th>
-            <td>{{ subdomain.http_screenshot_url }}</td>
-          </tr>
-          <tr>
-            <th>HTTP: Screenshot Path</th>
-            <td>{{ subdomain.http_screenshot_path }}</td>
+            <td>{{ subdomain.http_accessible }}&nbsp;(&nbsp;{{ subdomain.http_location }}&nbsp;)</td>
           </tr>
           <tr>
             <th>HTTPS Accessible</th>
-            <td>{{ subdomain.https_accessible }} ({{ subdomain.https_location }})</td>
+            <td>{{ subdomain.https_accessible }}&nbsp;(&nbsp;{{ subdomain.https_location }}&nbsp;)</td>
           </tr>
           <tr>
-            <th>HTTPS: Page Title</th>
-            <td>{{ subdomain.https_page_title }}</td>
-          </tr>
-          <tr>
-            <th>HTTPS: Screenshot URL</th>
-            <td>{{ subdomain.https_screenshot_url }}</td>
-          </tr>
-          <tr>
-            <th>HTTPS: Screenshot Path</th>
-            <td>{{ subdomain.https_screenshot_path }}</td>
-          </tr>
-          <tr>
-            <th>DNS: A Record</th>
+            <th>DNS Record</th>
             <td>{{ subdomain.dns_a_record | linebreaksbr }}</td>
-          </tr>
-          <tr>
-            <th>DNS: CNAME Record</th>
-            <td>{{ subdomain.dns_cname_record | linebreaksbr }}</td>
-          </tr>
-          <tr>
-            <th>DNS: NS Record</th>
-            <td>{{ subdomain.dns_ns_record | linebreaksbr }}</td>
-          </tr>
-          <tr>
-            <th>DNS: MX Record</th>
-            <td>{{ subdomain.dns_mx_record | linebreaksbr }}</td>
-          </tr>
-          <tr>
-            <th>DNS: SOA Record</th>
-            <td>{{ subdomain.dns_soa_record | linebreaksbr }}</td>
-          </tr>
-          <tr>
-            <th>DNS: TXT Record</th>
-            <td>{{ subdomain.dns_txt_record | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>Rank</th>
@@ -90,63 +89,13 @@
           </tr>
           <tr>
             <th>Status</th>
-            <td>{{ subdomain.status }}</td>
+            <td>{{ subdomain.get_status_display }}</td>
           </tr>
           <tr>
             <th colspan="2">
-              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info">Edit</a>
+              <a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-warning">Assess</a>
             </th>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<h4 class="mt-4 border-bottom">Screenshot</h4>
-<div class="col-12 col-xl-12 mb-4 mb-lg-0">
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-          <tr>
-            <th>HTTP</th>
-            <th>HTTPS</th>
-          </tr>
-          </thead>
-          <tr>
-            <td>
-              {{ subdomain.http_page_title }}
-              <figure>
-                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.http_screenshot_path }}" alt="{{ subdomain.http_page_title }}" width="50%">
-                <figcaption>{{ subdomain.http_screenshot_url }}</figcaption>
-              </figure>
-            </td>
-            <td>
-              {{ subdomain.https_page_title }}
-              <figure>
-                <img src="{% static 'gyoithon/img/screenshot/' %}{{ subdomain.https_screenshot_path }}" alt="{{ subdomain.https_page_title }}" width="50%">
-                <figcaption>{{ subdomain.https_screenshot_url }}</figcaption>
-              </figure>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<h4 class="mt-4 border-bottom">Vulnerability Assessment</h4>
-<div class="col-12 col-xl-12 mb-4 mb-lg-0">
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table">
-          <tr>
-            <th>GyoiThon executes "<u>Vulnerability Assessment</u>" to "{{ subdomain.name }}".</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-warning">Assess</a></td>
           </tr>
         </table>
       </div>
@@ -198,5 +147,5 @@
   </div>
 </div>
 
-<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+<a href="{% url 'gyoithon:detail_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-secondary">Back</a>
 {% endblock content %}

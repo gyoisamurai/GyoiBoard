@@ -1,32 +1,23 @@
 {% extends "gyoithon/base.html" %}
 
-{% block title %}Domain Detail{% endblock title %}
+{% block title %}{{ domain.name }}{% endblock title %}
 
-{% block breadcrumb_title %}{{ organization.name }} / {{ domain.name }}{% endblock breadcrumb_title %}
+{% block breadcrumb_title %}
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}">{{ organization.name }}</a>
+&nbsp;/&nbsp;
+{{ domain.name }}
+{% endblock breadcrumb_title %}
 
 {% block body_title %}{{ domain.name }}{% endblock body_title %}
 
-{% block body_description %}This is "{{ domain.name }}" detail.{% endblock body_description %}
+{% block body_description %}{{ domain.overview | linebreaksbr }}{% endblock body_description %}
 
 {% block content %}
-<h4 class="mt-4 border-bottom">Domain Information</h4>
 <div class="col-12 col-xl-12 mb-4 mb-lg-0">
   <div class="card">
     <div class="card-body">
       <div class="table-responsive">
         <table class="table">
-          <tr>
-            <th>Organization Name</th>
-            <td>{{ organization.name }}</td>
-          </tr>
-          <tr>
-            <th>Domain ID</th>
-            <td>{{ domain.id }}</td>
-          </tr>
-          <tr>
-            <th>Domain Name</th>
-            <td>{{ domain.name }}</td>
-          </tr>
           <tr>
             <th>Registration Date</th>
             <td>{{ domain.registration_date }}</td>
@@ -89,32 +80,14 @@
           </tr>
           <tr>
             <th>Status</th>
-            <td>{{ domain.status }}</td>
+            <td>{{ domain.get_status_display }}</td>
           </tr>
           <tr>
             <th colspan="2">
-              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info btn-sm">Edit</a>
+              <a href="{% url 'gyoithon:edit_domain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Edit</a>
+              <a href="{% url 'gyoithon:search_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-success">Search Subdomain</a>
+              <a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Add Subdomain</a>
             </th>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<h4 class="mt-4 border-bottom">Add Subdomains</h4>
-<div class="col-12 col-xl-12 mb-4 mb-lg-0">
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table">
-          <tr>
-            <th>GyoiThon searches "<u>Subdomains</u>" of "{{ domain.name }}".</th>
-            <td><a href="{% url 'gyoithon:search_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-success">Search Subdomain</a></td>
-          </tr>
-          <tr>
-            <th>You add a "<u>Subdomain</u>" manually.</th>
-            <td><a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-info">Add Manually</a></td>
           </tr>
         </table>
       </div>
@@ -149,8 +122,8 @@
             <td>{{ subdomain.ip_address }}</td>
             <td>{{ subdomain.http_accessible }}</td>
             <td>{{ subdomain.https_accessible }}</td>
-            <td>{{ subdomain.rank }}</td>
-            <td>{{ subdomain.status }}</td>
+            <td>{{ subdomain.get_rank_display }}</td>
+            <td>{{ subdomain.get_status_display }}</td>
             <td>
               <input type="checkbox" name="bulk_vulnerability_assessment" value="1">
             </td>
@@ -181,5 +154,5 @@
   </div>
 </div>
 
-<a href="{% url 'gyoithon:list_organization' %}" class="btn btn-secondary">Back</a>
+<a href="{% url 'gyoithon:detail_organization' organization_id=organization.id %}" class="btn btn-secondary">Back</a>
 {% endblock content %}
