@@ -66,5 +66,14 @@ class Utilty:
         return ''.join([random.choice(chars) for _ in range(length)])
 
     # Build GyoiThon's command.
-    def build_command(self):
-        return
+    def build_command(self, execution_type):
+        option = '-h'
+        if execution_type == 'search_domain':
+            print()
+        elif execution_type == 'search_subdomain':
+            option = '-i --domain_list --gyoiboard --no-update-vulndb'
+        elif execution_type == 'search_and_assessment':
+            print()
+        elif execution_type == 'assessment':
+            print()
+        return option

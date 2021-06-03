@@ -61,7 +61,7 @@
           </tr>
           <tr>
             <th>IP Address</th>
-            <td>{{ subdomain.ip_address }}</td>
+            <td>{{ subdomain.ip_address | linebreaksbr }}</td>
           </tr>
           <tr>
             <th>Environment</th>
@@ -95,6 +95,7 @@
             <th colspan="2">
               <a href="{% url 'gyoithon:edit_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-info">Edit</a>
               <a href="{% url 'gyoithon:registration_subdomain' organization_id=organization.id domain_id=domain.id %}" class="btn btn-warning">Assess</a>
+              <a href="{% url 'gyoithon:delete_subdomain' organization_id=organization.id domain_id=domain.id subdomain_id=subdomain.id %}" class="btn btn-danger">Hide</a>
             </th>
           </tr>
         </table>

@@ -16,8 +16,8 @@ SECRET_KEY = 'DUMMY'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# Allowable hosts.
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'gyoithon.apps.GyoithonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -34,6 +35,13 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_extensions',
     'bootstrap4',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'corsheaders',
 ]
 
 CELERY_TASK_TRACK_STARTED = True
@@ -45,12 +53,61 @@ CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    )
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+# Authentication Type.
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = False
+
+# Required for django-allauth.
+SITE_ID = 1
+
+# Disable session login and enable CORS ORIGIN.
+REST_SESSION_LOGIN = False
+CORS_ORIGIN_ALLOW_ALL = True
+
+# Verify email in Login.
+ACCOUNT_EMAIL_VARIFICATION = 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = True
+
+# Setting for JWT.
+REST_USE_JWT = True
+JWT_AUTH = {
+    'JWT_VERIFY_EXPIRATION': False,  # Debug.
+}
+
+# Allowable Origins.
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+)
+
+# Setting for distribution Email.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Can be published responses.
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'gyoiboard.urls'
 
@@ -114,16 +171,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-# LANGUAGE_CODE = 'ja'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ja'
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Tokyo'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 

@@ -119,7 +119,7 @@
             <th scope="row">{{ subdomain.id }}</th>
             <td>{{ subdomain.name }}</td>
             <td>{{ subdomain.registration_date}}</td>
-            <td>{{ subdomain.ip_address }}</td>
+            <td>{{ subdomain.ip_address | linebreaksbr }}</td>
             <td>{{ subdomain.http_accessible }}</td>
             <td>{{ subdomain.https_accessible }}</td>
             <td>{{ subdomain.get_rank_display }}</td>
