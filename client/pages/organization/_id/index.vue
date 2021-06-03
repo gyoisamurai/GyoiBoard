@@ -49,6 +49,7 @@
                     <div class="col-sm-offset-2 col-sm-10">
                       <button @click="openUpdateOrganization()" type="submit" class="btn btn-info">Update</button>
                       <button type="submit" class="btn btn-success">Search Domain</button>
+                      <button type="submit" class="btn btn-warning">Show Report</button>
                     </div>
                   </div>
                 </th>
@@ -260,6 +261,7 @@
                 <td>
                   <NuxtLink class="btn btn-primary btn-sm" :to="`./domain/${domain.id}/`">View</NuxtLink>
                   <button @click="hideDomain(domain)" class="btn btn-danger btn-sm">Hide</button>
+                  <button type="submit" class="btn btn-warning btn-sm">Report</button>
                 </td>
               </tr>
               <tr>

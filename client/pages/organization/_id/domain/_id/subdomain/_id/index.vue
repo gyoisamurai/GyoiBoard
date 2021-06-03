@@ -57,7 +57,7 @@
                 <th colspan="2">
                   <div class="form-group row">
                     <div class="col-sm-offset-2 col-sm-10">
-                      <button @click="openUpdateSubdomain()" type="submit" class="btn btn-info">Update</button>
+                      <button type="submit" class="btn btn-info">Re-Search</button>
                       <button type="submit" class="btn btn-warning">Assess</button>
                     </div>
                   </div>
@@ -68,110 +68,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Update Subdomain. -->
-    <modal name="modal-subdomain-update" height="auto" weight="auto" :scrollable="true" :draggable="true">
-      <div class="modal-header">
-        <h1 class="my-3 text-3xl font-semibold text-gray-700">Domain Update</h1>
-      </div>
-      <div class="modal-body">
-        <p>You can update domain information.</p>
-        <form class="form-horizontal">
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="name">Name:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.name" name="name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Registrar:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.registrar" name="registrar">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Administrative Contact:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.administrative_contact" name="administrative_contact">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Registrant Name:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.registrant_name" name="registrant_name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Registrant Organization:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.registrant_organization" name="registrant_organization">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Registrant Email:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.registrant_email" name="registrant_email">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Admin Name:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.admin_name" name="admin_name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Admin Organization:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.admin_organization" name="admin_organization">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Admin Email:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.admin_email" name="admin_email">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Tech Name:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.tech_name" name="tech_name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Tech Organization:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.tech_organization" name="tech_organization">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Tech Email:</label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" v-model="domain.tech_email" name="tech_email">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="region">Name Server:</label>
-            <div class="col-sm-10">
-              <textarea id="name_server" v-model="domain.name_server" name="name_server" rows="5" class="form-control">
-              </textarea>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="overview">Overview:</label>
-            <div class="col-sm-10">
-              <textarea id="overview" v-model="domain.overview" name="overview" rows="5" class="form-control">
-              </textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm-offset-2 col-sm-10">
-              <button type="submit" class="btn btn-primary" @click.prevent="updateSubdomain()">Update</button>
-              <button type="submit" class="btn btn-danger" @click.prevent="closeUpdateSubdomain()">Cancel</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </modal>
 
     <hr>
     <h1 class="h2">Assessment Results</h1>

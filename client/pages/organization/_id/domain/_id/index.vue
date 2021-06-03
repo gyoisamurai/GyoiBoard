@@ -86,6 +86,7 @@
                     <div class="col-sm-offset-2 col-sm-10">
                       <button @click="openUpdateDomain()" type="submit" class="btn btn-info">Update</button>
                       <button type="submit" class="btn btn-success">Search Subdomain</button>
+                      <button type="submit" class="btn btn-warning">Show Report</button>
                     </div>
                   </div>
                 </th>
@@ -297,6 +298,7 @@
                 <td>
                   <NuxtLink class="btn btn-primary btn-sm" :to="`./subdomain/${subdomain.id}/`">View</NuxtLink>
                   <button @click="hideSubdomain(organization.id, domain.id, subdomain)" class="btn btn-danger btn-sm">Hide</button>
+                  <button type="submit" class="btn btn-warning btn-sm">Report</button>
                 </td>
               </tr>
               <tr>

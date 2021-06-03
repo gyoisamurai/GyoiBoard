@@ -42,14 +42,16 @@
                 <td>
                   <NuxtLink class="btn btn-primary btn-sm" :to="`/organization/${organization.id}/`">View</NuxtLink>
                   <button @click="hideOrganization(organization)" class="btn btn-danger btn-sm">Hide</button>
+                  <button type="submit" class="btn btn-warning btn-sm">Report</button>
                 </td>
               </tr>
               <tr>
                 <td colspan="9">
                   <button @click="openRegistration()" type="submit" class="btn btn-primary">Registration</button>
                   <button type="submit" class="btn btn-success">Search Domain/Subdomain</button>
-                  <button type="submit" class="btn btn-warning">Assess</button>
+                  <button type="submit" class="btn btn-danger">Assess</button>
                   <button type="submit" class="btn btn-dark">Search & Assess</button>
+                  <button type="submit" class="btn btn-warning">Show Report</button>
                   <button type="submit" class="btn btn-secondary">Hidden List</button>
                 </td>
               </tr>
