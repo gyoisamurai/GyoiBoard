@@ -5,7 +5,8 @@ from django.conf.urls.static import static
 from gyoithon import views
 from gyoithon.views import OrganizationViewSet, OrganizationDetailSet, OrganizationCreateSet, OrganizationUpdateSet, \
     DomainViewSet, DomainDetailSet, DomainCreateSet, DomainUpdateSet, SubdomainViewSet, SubdomainDetailSet, \
-    SubdomainCreateSet, SubdomainUpdateSet
+    SubdomainCreateSet, SubdomainUpdateSet, AssessmentViewSetOrganization, AssessmentViewSetDomain,\
+    AssessmentViewSetSubdomain, AssessmentDetailSet, AssessmentUpdateSet
 
 # Application.
 app_name = 'gyoithon'
@@ -24,6 +25,11 @@ apipatterns = [
     path('api/organization/<int:related_organization_id>/domain/<int:related_domain_id>/subdomain/', SubdomainViewSet.as_view()),
     path('api/organization/<int:related_organization_id>/domain/<int:related_domain_id>/subdomain/add/', SubdomainCreateSet.as_view()),
     path('api/organization/<int:related_organization_id>/domain/<int:related_domain_id>/subdomain/edit/<int:pk>/', SubdomainUpdateSet.as_view()),
+    path('api/assessment/<int:pk>/', AssessmentDetailSet.as_view()),
+    path('api/organization/<int:related_organization_id>/assessment/', AssessmentViewSetOrganization.as_view()),
+    path('api/domain/<int:related_domain_id>/assessment/', AssessmentViewSetDomain.as_view()),
+    path('api/subdomain/<int:related_subdomain_id>/assessment/', AssessmentViewSetSubdomain.as_view()),
+    path('api/assessment/edit/<int:pk>/', AssessmentUpdateSet.as_view()),
 ]
 
 urlpatterns = [

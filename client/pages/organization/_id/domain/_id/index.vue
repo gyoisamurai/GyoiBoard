@@ -282,7 +282,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="subdomain of subdomains" :key="domain.id" @click="$data.subdomain = subdomain" v-if="!subdomain.invisible">
+              <tr v-for="subdomain of subdomains" @click="$data.subdomain = subdomain" v-if="!subdomain.invisible">
                 <th scope="row">{{ subdomain.id }}</th>
                 <td>{{ subdomain.name }}</td>
                 <td>{{ subdomain.registration_date | formatDate }}</td>
@@ -321,6 +321,7 @@
 import OrganizationAPI from '~/plugins/organization';
 import DomainAPI from '~/plugins/domain';
 import SubdomainAPI from '~/plugins/subdomain';
+import AssessmentAPI from '~/plugins/assessment';
 
 export default {
   middleware: ['auth'],

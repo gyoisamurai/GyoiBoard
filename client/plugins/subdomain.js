@@ -8,7 +8,7 @@ export default {
 
   /* Get all subdomains. */
   getSubdomains(organization_id, domain_id) {
-    return axios.$get(`gyoithon/api/organization/${organization_id}/domain/${domain_id}/subdomain`)
+    return axios.$get(`gyoithon/api/organization/${organization_id}/domain/${domain_id}/subdomain/`)
   },
 
   /* Add new subdomain. */

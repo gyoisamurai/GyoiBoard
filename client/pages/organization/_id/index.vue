@@ -245,7 +245,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="domain of domains" :key="organization.id" @click="$data.domain = domain" v-if="!domain.invisible">
+              <tr v-for="domain of domains" @click="$data.domain = domain" v-if="!domain.invisible">
                 <th scope="row">{{ domain.id }}</th>
                 <td>{{ domain.name }}</td>
                 <td>{{ domain.registration_date | formatDate }}</td>
@@ -285,6 +285,7 @@
 <script>
 import OrganizationAPI from '@/plugins/organization';
 import DomainAPI from '@/plugins/domain';
+import AssessmentAPI from '~/plugins/assessment';
 
 export default {
   middleware: ['auth'],

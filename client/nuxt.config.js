@@ -28,6 +28,7 @@ export default {
     { src: '~/plugins/organization.js' },
     { src: '~/plugins/domain.js' },
     { src: '~/plugins/subdomain.js' },
+    { src: '~/plugins/assessment.js' },
     { src: '~/plugins/modal-window.js' },
     { src: '~/plugins/filter.js' }
   ],
@@ -70,7 +71,7 @@ export default {
           required: true
         },
         endpoints: {
-          login: { url: '/rest-auth/login/', method: 'post', propertyName: 'token' },
+          login: { url: '/rest-auth/login/', method: 'post', propertyName: 'token', contentType: 'application/json' },
           user: false,
           logout: false
         }

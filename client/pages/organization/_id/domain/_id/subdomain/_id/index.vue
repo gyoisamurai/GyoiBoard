@@ -80,40 +80,27 @@
               <thead>
               <tr>
                 <th>No</th>
-                <th>Name</th>
-                <th>Registration Date</th>
-                <th>IP Address</th>
-                <th>HTTP Accessible</th>
-                <th>HTTPS Accessible</th>
-                <th>Rank</th>
-                <th>Status</th>
+                <th>URL</th>
+                <th>Product Name</th>
+                <th>Vendor</th>
+                <th>Type</th>
+                <th>CVE-ID</th>
+                <th>Scan Date</th>
                 <th colspan="2"></th>
               </tr>
               </thead>
               <tbody>
-              <tr v-for="subdomain of subdomains" :key="domain.id" @click="$data.subdomain = subdomain" v-if="!subdomain.invisible">
-                <th scope="row">{{ subdomain.id }}</th>
-                <td>{{ subdomain.name }}</td>
-                <td>{{ subdomain.registration_date | formatDate }}</td>
-                <td>{{ subdomain.ip_address }}</td>
-                <td>{{ subdomain.http_accessible }}</td>
-                <td>{{ subdomain.https_accessible }}</td>
-                <td>{{ subdomain.rank | exchangeRank }}</td>
-                <td>{{ subdomain.status | exchangeStatus }}</td>
-                <td>
-                  <input type="checkbox" name="
-                  bulk_vulnerability_assessment" value="1">
-                </td>
+              <tr v-for="assessment of assessments" @click="$data.assessment = assessment" v-if="!subdomain.invisible">
+                <td scope="row">{{ assessment.id }}</td>
+                <td>{{ assessment.assessment_url }}</td>
+                <td>{{ assessment.product_name }} / {{ assessment.product_version }}</td>
+                <td>{{ assessment.product_vendor }}</td>
+                <td>{{ assessment.product_type }}</td>
+                <td v-html="assessment.product_cveid.replace(/\n/g,'<br/>')">{{ assessment.product_cveid }}</td>
+                <td>{{ assessment.scan_date | formatDate }}</td>
                 <td>
                   <NuxtLink class="btn btn-primary btn-sm" :to="`/subdomain/${subdomain.id}/`">View</NuxtLink>
                   <button @click="hideSubdomain(subdomain)" class="btn btn-danger btn-sm">Hide</button>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="10">
-                  <button type="submit" class="btn btn-primary">Registration</button>
-                  <button type="submit" class="btn btn-warning">Assess</button>
-                  <button type="submit" class="btn btn-secondary">Hidden Domain</button>
                 </td>
               </tr>
               </tbody>
@@ -129,6 +116,7 @@
 import OrganizationAPI from '~/plugins/organization';
 import DomainAPI from '~/plugins/domain';
 import SubdomainAPI from '~/plugins/subdomain';
+import AssessmentAPI from '~/plugins/assessment';
 
 export default {
   middleware: ['auth'],
@@ -189,6 +177,19 @@ export default {
         related_organization_id: "",
         related_domain_id: "",
       },
+      assessments: {},
+      assessment: {
+        assessment_url: "",
+        product_vendor: "",
+        product_name: "",
+        product_version: "",
+        product_type: "",
+        product_cveid: "",
+        scan_date: "",
+        related_organization_id: "",
+        related_domain_id: "",
+        related_subdomain_id: "",
+      }
     }
   },
   watch: {
@@ -200,9 +201,10 @@ export default {
       const subdomain = await SubdomainAPI.getSubdomain(params.id)
       const organization = await OrganizationAPI.getOrganization(subdomain.related_organization_id)
       const domain = await DomainAPI.getDomain(subdomain.related_domain_id)
-      return { organization, domain, subdomain }
+      const assessments = await AssessmentAPI.getAssessmentSubdomain(params.id)
+      return { organization, domain, subdomain, assessments }
     } catch (e) {
-      return { organization: [], domain: [], subdomain: [] }
+      return { organization: [], domain: [], subdomain: [], assessments: [] }
     }
   },
 

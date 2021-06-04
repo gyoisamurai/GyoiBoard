@@ -7,10 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from gyoiboard.tasks import executation
 from gyoithon.util import Utilty
-from gyoithon.models import Organization, Domain, Subdomain
+from gyoithon.models import Organization, Domain, Subdomain, Assessment
 from gyoithon.forms import RegistrationOrganizationForm, UpdateOrganizationForm, RegistrationDomainForm, \
     UpdateDomainForm, RegistrationSubdomainForm, UpdateSubdomainForm
-from gyoithon.serializers import OrganizationSerializer, DomainSerializer, SubdomainSerializer
+from gyoithon.serializers import OrganizationSerializer, DomainSerializer, SubdomainSerializer, AssessmentSerializer
 
 
 # Organization List.
@@ -118,6 +118,61 @@ class SubdomainUpdateSet(UpdateAPIView):
     queryset = Subdomain.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = SubdomainSerializer
+
+
+# Assessment List of Organization.
+class AssessmentViewSetOrganization(ListAPIView):
+    model = Assessment
+    queryset = Assessment.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AssessmentSerializer
+
+    def get_queryset(self):
+        related_organization_id = self.kwargs['related_organization_id']
+        return Assessment.objects.filter(related_organization_id__exact=related_organization_id,
+                                         invisible__exact=False).order_by('id')
+
+
+# Assessment List of Domain.
+class AssessmentViewSetDomain(ListAPIView):
+    model = Assessment
+    queryset = Assessment.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AssessmentSerializer
+
+    def get_queryset(self):
+        related_domain_id = self.kwargs['related_domain_id']
+        return Assessment.objects.filter(related_domain_id__exact=related_domain_id,
+                                         invisible__exact=False).order_by('id')
+
+
+# Assessment List of Subdomain.
+class AssessmentViewSetSubdomain(ListAPIView):
+    model = Assessment
+    queryset = Assessment.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AssessmentSerializer
+
+    def get_queryset(self):
+        related_subdomain_id = self.kwargs['related_subdomain_id']
+        return Assessment.objects.filter(related_subdomain_id__exact=related_subdomain_id,
+                                         invisible__exact=False).order_by('id')
+
+
+# Assessment Detail.
+class AssessmentDetailSet(RetrieveAPIView):
+    model = Assessment
+    queryset = Assessment.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AssessmentSerializer
+
+
+# Update Assessment.
+class AssessmentUpdateSet(UpdateAPIView):
+    model = Assessment
+    queryset = Assessment.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AssessmentSerializer
 
 
 # Top Page (Dashboard).

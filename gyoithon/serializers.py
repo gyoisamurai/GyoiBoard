@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from gyoithon.models import Organization, Domain, Subdomain
+from gyoithon.models import Organization, Domain, Subdomain, Assessment
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -17,4 +17,10 @@ class DomainSerializer(serializers.ModelSerializer):
 class SubdomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subdomain
+        fields = '__all__'
+
+
+class AssessmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessment
         fields = '__all__'

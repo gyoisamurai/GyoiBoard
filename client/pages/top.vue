@@ -28,7 +28,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="organization of organizations" :key="organization.id" @click="$data.organization = organization" v-if="!organization.invisible">
+              <tr v-for="organization of organizations" @click="$data.organization = organization" v-if="!organization.invisible">
                 <td>{{ organization.id }}</td>
                 <td>{{ organization.name }}</td>
                 <td>{{ organization.registration_date | formatDate }}</td>
